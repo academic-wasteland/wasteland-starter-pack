@@ -4,6 +4,7 @@ import hashlib
 import hmac
 import json
 import secrets
+import socketserver
 import sqlite3
 import threading
 import time
@@ -312,6 +313,15 @@ def handler(store, invite, public_url):
     return Handler
 
 
+class RelayServer(ThreadingHTTPServer):
+    def server_bind(self):
+        # Discovery uses the explicit public URL. Reverse DNS during binding is
+        # unnecessary and can stall startup on laptops with broken name service.
+        socketserver.TCPServer.server_bind(self)
+        self.server_name = self.server_address[0]
+        self.server_port = self.server_address[1]
+
+
 def serve(directory, public_url, bind="127.0.0.1", port=8392):
     directory = Path(directory)
     directory.mkdir(parents=True, exist_ok=True)
@@ -320,7 +330,7 @@ def serve(directory, public_url, bind="127.0.0.1", port=8392):
     if not invitation.exists():
         invitation.touch(mode=0o600)
         invitation.write_text(secrets.token_urlsafe(32))
-    server = ThreadingHTTPServer(
+    server = RelayServer(
         (bind, port),
         handler(
             Store(directory / "hub.sqlite"), invitation.read_text().strip(), public_url

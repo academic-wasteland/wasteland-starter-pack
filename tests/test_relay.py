@@ -231,8 +231,8 @@ class RelayTests(unittest.TestCase):
         directory = self.root / "process-hub"
         command = [
             sys.executable,
-            "-m",
-            "wasteland",
+            "-c",
+            "import faulthandler,runpy; faulthandler.dump_traceback_later(10,repeat=True); runpy.run_module('wasteland',run_name='__main__')",
             "--state",
             str(directory),
             "hub",

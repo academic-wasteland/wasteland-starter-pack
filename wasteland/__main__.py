@@ -50,6 +50,10 @@ def main():
     send.add_argument("--operation", default="echo")
     send.add_argument("--body", type=Path)
     send.add_argument("--wait", type=float, default=0, metavar="SECONDS")
+    resource = sub.add_parser("resource", help="download a published town resource with digest verification")
+    resource.add_argument("town")
+    resource.add_argument("id")
+    resource.add_argument("--out", type=Path, required=True)
     get = sub.add_parser("get")
     get.add_argument("id")
     sub.add_parser("inbox")
@@ -107,6 +111,9 @@ def main():
             print("Request:", message_id, flush=True)
             if args.wait:
                 print(json.dumps(client.wait(message_id, args.wait), indent=2))
+        elif args.command == "resource":
+            from .resources import download
+            print(json.dumps(download(Client(args.state), args.town, args.id, args.out), indent=2))
         elif args.command in {"get", "inbox"}:
             route = "/v1/messages/" + args.id if args.command == "get" else "/v1/inbox"
             print(json.dumps(Client(args.state).call(route), indent=2))

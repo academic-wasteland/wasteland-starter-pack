@@ -96,6 +96,37 @@ class Bridge:
     def handle(self, message, config):
         body = message["body"]
         operation = body.get("operation", "echo")
+        if operation == "datasets":
+            from pangenome_town.compute.delegation import catalog
+            return {"ok": True, "datasets": [{k: d[k] for k in ("id", "version", "custodian", "samples", "manifest", "public_key", "workflows", "access")}
+                                             for d in catalog(self.town).values()]}
+        if operation in {"resources", "resource"}:
+            from pangenome_town import resources
+            from pangenome_town.compute import ComputeError
+            try:
+                if operation == "resource":
+                    return resources.chunk(self.town, body)
+                items = resources.listing(self.town)
+                offset = body.get("offset", 0)
+                if type(offset) is not int or offset < 0:
+                    raise ComputeError("nonnegative integer offset required")
+                return {"ok": True, "resources": items[offset:offset+40], "total": len(items),
+                        "next_offset": min(len(items), offset+40)}
+            except (ComputeError, OSError) as error:
+                return {"ok": False, "error": str(error)}
+        if operation == "delegated-compute":
+            from pangenome_town.compute.delegation import execute
+            from pangenome_town.compute import ComputeError
+            task = body.get("task")
+            if not isinstance(task, dict):
+                return {"ok": False, "state": "rejected", "error": "execution task required"}
+            if task.get("requester") != message["from"]:
+                return {"ok": False, "state": "rejected", "error": "authenticated sender must be the approved requester"}
+            try:
+                return execute(self.town, task, body.get("grants", []), log=self.log, message_id=message["id"])
+            except (ComputeError, ValueError) as error:
+                return {"ok": False, "state": "input-required" if str(error).startswith("waiting for") else "failed",
+                        "error": str(error), "task_id": task.get("id")}
         if operation in {"echo", "ping"}:
             health = self.upstream("/healthz")
             return {
@@ -210,7 +241,18 @@ class Bridge:
         from pangenome_town.envoy import EnvoyState
         from pangenome_town.exchange import Envelope
 
-        if self.town.kind != "authority":
+        resident = message["body"].get("resident")
+        if resident in {"q", "bloodninja"}:
+            if not (self.town.city_root / "agents" / resident / "agent.toml").is_file():
+                return {"ok": False, "error": "resident is not available in this town"}
+            result = subprocess.run(
+                [mail.gc_binary(), "mail", "send", "--city", str(self.town.city_root), "--from", "human",
+                 "--to", resident, "-s", mail.subject_for(Envelope.from_dict(message)),
+                 "-m", mail.body_for(Envelope.from_dict(message)), "--notify", "--json"],
+                capture_output=True, check=False, text=True, timeout=60)
+            if result.returncode:
+                return {"ok": False, "error": "resident delivery unavailable"}
+        elif self.town.kind != "authority":
             town = dataclasses.replace(
                 self.town, peers={**self.town.peers, message["from"]: message["from"]}
             )
@@ -265,9 +307,11 @@ def run(directory, town_config):
     if config["name"] != bridge.town.name:
         raise ValueError("bridge credential must match the configured town")
     config["display"] = bridge.town.display
-    config["capabilities"] = ["echo", "ping", "describe", "message"] + (
-        ["issuers"] if bridge.town.kind == "authority" else ["variants", "haplotypes"]
+    config["capabilities"] = ["echo", "ping", "describe", "message", "resources", "resource"] + (
+        ["issuers"] if bridge.town.kind == "authority" else ["variants", "haplotypes", "datasets", "delegated-compute"]
     )
+    config["capabilities"].extend("resident:" + name for name in ("q", "bloodninja")
+                                 if (bridge.town.city_root / "agents" / name / "agent.toml").is_file())
     save_config(directory, config)
     Worker(
         directory,

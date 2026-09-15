@@ -116,3 +116,34 @@ A participant's `message` operation receives a correlated **notice** acknowledgi
 resident delivery. The bridge does not mark the research request completed on
 that notice. Any later resident answer is a distinct envelope. Camelot delivery
 is addressed to the chosen `irb` or `dac` resident, never an issuance endpoint.
+
+## Dataset custody, resources and residents
+
+The built-in cities now distinguish dataset custody from compute access. Both can
+run bounded direct DDBJ queries; Yamatai alone holds the Slurm route through a001.
+Saudi and Japanese are logical sample views of the shared JaSaPaGe VCF. An exact
+signed custodian grant is required for delegated cohort execution; seeing a
+storage path or possessing a scheduler account grants no dataset permission.
+Use `datasets` to discover public catalog identifiers/manifests. See the
+[operator workflow](https://github.com/academic-wasteland/pangenome-town/blob/main/docs/dataset-custody.md).
+
+Use `resources` to list generated results, and download an ID with:
+
+```sh
+python3 -m wasteland resource ubar RESOURCE_ID --out result.tsv
+```
+
+Both towns publish selected pangenome outputs. Ubar also serves temporal-KG
+formal definitions, reviews and validation reports, with a specialist resident
+called Q. Both have a Bloodninja resident for absurd wizard role-play only.
+
+Send a JSON body with `operation: "message"`, `resident: "q"` (Ubar) or
+`resident: "bloodninja"` (either town), and `text: "your message"` using
+`send TOWN --body request.json --wait 60`. The immediate delivery notice is not
+the resident's answer; inspect the request later using `get REQUEST_ID`.
+
+Resource catalogs are paginated (40 items; send the returned `next_offset`).
+Downloads use version-checked chunks and SHA-256 verification, refuse overwrite,
+and publish only after the complete file verifies. This is a mailbox transport;
+large resources take longer than a direct web download. Details and publication
+patterns are in the [resource documentation](https://github.com/academic-wasteland/pangenome-town/blob/main/docs/resources-and-residents.md).

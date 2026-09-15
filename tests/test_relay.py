@@ -248,13 +248,24 @@ class RelayTests(unittest.TestCase):
                 command, cwd=ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE
             )
             processes.append(process)
-            for _ in range(60):
+            deadline = time.monotonic() + 30
+            last_error = None
+            while time.monotonic() < deadline:
+                if process.poll() is not None:
+                    self.fail(
+                        "hub exited during startup: " + process.stderr.read().decode()
+                    )
                 try:
-                    request(base, "/healthz", timeout=0.2)
+                    request(base, "/healthz", timeout=2)
                     return process
-                except RemoteError:
+                except RemoteError as error:
+                    last_error = str(error)
                     time.sleep(0.1)
-            self.fail("hub process did not start")
+            process.terminate()
+            _, diagnostics = process.communicate(timeout=5)
+            self.fail(
+                f"hub did not become ready: {last_error}; stderr: {diagnostics.decode()}"
+            )
 
         try:
             hub = start()

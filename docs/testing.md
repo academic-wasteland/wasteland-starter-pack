@@ -65,3 +65,11 @@ independent biological replication study. The test host is separate hardware
 from the city workstation; two actual participant laptops on the venue Wi-Fi
 must still run the quickstart/smoke test to check their captive portal and outbound
 HTTPS access. No incoming laptop port is needed.
+
+## Checked platform matrix
+
+The 17-check suite passed on Linux and macOS with Python 3.11 and 3.13 in
+[the CI matrix](https://github.com/academic-wasteland/wasteland-starter-pack/actions/runs/34930952663).
+Relay startup uses its configured address without reverse DNS; discovery uses
+the explicit public URL. The restart test includes subprocess diagnostics so a
+failed start is distinguished from a worker reconnect failure.

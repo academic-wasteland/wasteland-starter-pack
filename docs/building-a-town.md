@@ -101,7 +101,7 @@ For native `pangenome-town send` replies to a relay participant, configure:
 state = "~/.config/wasteland-bridge/your_town"
 ```
 
-Use a pangenome-town revision with the federation relay support in `peers.py`.
+Use pangenome-town commit `9c3e930` or later, which includes federation relay support in `peers.py`.
 Known local peers keep their existing supervisor route. Unknown local peers go
 to the explicitly configured relay, which verifies the sender and recipient.
 Native sends must have no file attachments; return an inline summary instead.

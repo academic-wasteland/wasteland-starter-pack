@@ -6,7 +6,6 @@ supply an ORCID, credentials, command, template or arbitrary A2A document.
 
 import dataclasses
 import json
-import subprocess
 import urllib.request
 
 from .client import Worker, save_config
@@ -83,14 +82,15 @@ class Bridge:
             self.log.set_status(message["in_reply_to"], "answered")
         if (
             message["kind"] == "question"
-            and message["body"].get("operation") != "message"
+            and (message["body"].get("operation") != "message"
+                 or message["body"].get("resident") in {"q", "bloodninja"})
         ):
             self.log.set_status(message["id"], "dispatched")
             self.log.event(
                 self.town.name,
                 "dispatched",
                 message["id"],
-                {"executor": "federation bridge"},
+                {"executor": "federation bridge", "resident": message["body"].get("resident")},
             )
 
     def handle(self, message, config):
@@ -245,13 +245,11 @@ class Bridge:
         if resident in {"q", "bloodninja"}:
             if not (self.town.city_root / "agents" / resident / "agent.toml").is_file():
                 return {"ok": False, "error": "resident is not available in this town"}
-            result = subprocess.run(
-                [mail.gc_binary(), "mail", "send", "--city", str(self.town.city_root), "--from", "human",
-                 "--to", resident, "-s", mail.subject_for(Envelope.from_dict(message)),
-                 "-m", mail.body_for(Envelope.from_dict(message)), "--notify", "--json"],
-                capture_output=True, check=False, text=True, timeout=60)
-            if result.returncode:
-                return {"ok": False, "error": "resident delivery unavailable"}
+            try:
+                receipt = mail.send_to_resident(self.town, Envelope.from_dict(message), resident)
+            except mail.MailError as error:
+                return {"ok": False, "error": str(error)}
+            self.log.event(self.town.name, "resident_delivered", message["id"], {"resident": resident, "mail_id": receipt["id"]})
         elif self.town.kind != "authority":
             town = dataclasses.replace(
                 self.town, peers={**self.town.peers, message["from"]: message["from"]}
@@ -266,31 +264,11 @@ class Bridge:
             resident = message["body"].get("resident", "irb")
             if resident not in {"irb", "dac"}:
                 return {"ok": False, "error": "Camelot resident must be irb or dac"}
-            result = subprocess.run(
-                [
-                    mail.gc_binary(),
-                    "mail",
-                    "send",
-                    "--city",
-                    str(self.town.city_root),
-                    "--from",
-                    "human",
-                    "--to",
-                    resident,
-                    "-s",
-                    mail.subject_for(Envelope.from_dict(message)),
-                    "-m",
-                    mail.body_for(Envelope.from_dict(message)),
-                    "--notify",
-                    "--json",
-                ],
-                capture_output=True,
-                check=False,
-                text=True,
-                timeout=60,
-            )
-            if result.returncode:
-                return {"ok": False, "error": "resident delivery unavailable"}
+            try:
+                receipt = mail.send_to_resident(self.town, Envelope.from_dict(message), resident)
+            except mail.MailError as error:
+                return {"ok": False, "error": str(error)}
+            self.log.event(self.town.name, "resident_delivered", message["id"], {"resident": resident, "mail_id": receipt["id"]})
         return {
             "ok": True,
             "state": "delivered-to-resident",

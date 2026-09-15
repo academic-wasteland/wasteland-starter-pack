@@ -235,3 +235,6 @@ on yours to verify that last network hop.
 To join a different relay, use `join --hub https://YOUR-HOST/wasteland`. You do not
 need to put your repository in our GitHub organisation. This project is an
 Apache-2.0 template; keep credentials and runtime state outside your repository.
+
+For issuer-specific agent certification, the optional Keycloak integration, and
+finding services in towns such as Zerzura, see [certification and discovery](docs/certification.md).

@@ -17,6 +17,7 @@ worker in another operating-system process. No hosted services are needed.
 | Reply correlation | A third town cannot forge an answer to another pair's question |
 | Duplicate send | Identical saved bytes return a duplicate receipt; altered bytes conflict |
 | Offline delivery | Unacknowledged mail survives a reopened relay database |
+| Real server restart | Worker starts during relay outage, reconnects after an actual process restart, and answers queued work |
 | Worker restart | Failure after saving/sending but before ack does not rerun the handler |
 | Backpressure/revocation | Full inbox rejected; disabled identity cannot authenticate |
 | File isolation | Local attachment paths refused; private state modes checked |

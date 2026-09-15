@@ -10,5 +10,5 @@ python3 tests/run_checks.py
 ```
 
 ```output
-PASS: 16 relay, isolation, recovery and independent-worker checks
+PASS: 17 relay, isolation, recovery and independent-worker checks
 ```

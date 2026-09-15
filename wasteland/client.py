@@ -114,13 +114,14 @@ class Client:
         self.send(message)
         return message["id"]
 
-    def wait(self, message_id, timeout=120):
+    def wait(self, message_id, timeout=120, *, acknowledge=True):
         end = time.monotonic() + timeout
         while time.monotonic() < end:
             result = self.call("/v1/messages/" + message_id)
             if result["replies"]:
-                for reply in result["replies"]:
-                    self.call("/v1/ack", {"id": reply["id"]})
+                if acknowledge:
+                    for reply in result["replies"]:
+                        self.call("/v1/ack", {"id": reply["id"]})
                 return result["replies"]
             time.sleep(0.5)
         raise RemoteError(

@@ -1,9 +1,11 @@
 import json
 import secrets
+import socket
 import subprocess
 import sys
 import tempfile
 import threading
+import time
 import unittest
 from http.server import ThreadingHTTPServer
 from pathlib import Path
@@ -220,6 +222,75 @@ class RelayTests(unittest.TestCase):
         self.assertEqual(received[0]["id"], mid)
         self.assertEqual(sent[0]["id"], reply["id"])
         worker.db.close()
+
+    def test_real_hub_process_restart_and_worker_reconnect(self):
+        with socket.socket() as sock:
+            sock.bind(("127.0.0.1", 0))
+            port = sock.getsockname()[1]
+        base = f"http://127.0.0.1:{port}"
+        directory = self.root / "process-hub"
+        command = [
+            sys.executable,
+            "-m",
+            "wasteland",
+            "--state",
+            str(directory),
+            "hub",
+            "--port",
+            str(port),
+            "--public-url",
+            base,
+        ]
+        processes = []
+
+        def start():
+            process = subprocess.Popen(
+                command, cwd=ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE
+            )
+            processes.append(process)
+            for _ in range(60):
+                try:
+                    request(base, "/healthz", timeout=0.2)
+                    return process
+                except RemoteError:
+                    time.sleep(0.1)
+            self.fail("hub process did not start")
+
+        try:
+            hub = start()
+            invitation = (directory / "invite.secret").read_text()
+            for town in ["delta", "echo_town"]:
+                join(self.root / town, base, town, invitation)
+            sender = Client(self.root / "delta")
+            mid = sender.ask("echo_town", text="survives an actual server restart")
+            hub.terminate()
+            hub.wait(timeout=5)
+            with self.assertRaises(RemoteError):
+                request(base, "/healthz", timeout=0.2)
+            worker = subprocess.Popen(
+                [
+                    sys.executable,
+                    "-m",
+                    "wasteland",
+                    "--state",
+                    str(self.root / "echo_town"),
+                    "work",
+                ],
+                cwd=ROOT,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.PIPE,
+            )
+            processes.append(worker)
+            time.sleep(0.4)
+            self.assertIsNone(worker.poll(), "worker exited during startup outage")
+            start()
+            self.assertTrue(sender.wait(mid, 10)[0]["body"]["ok"])
+        finally:
+            for process in processes:
+                if process.poll() is None:
+                    process.terminate()
+            for process in processes:
+                process.wait(timeout=5)
 
     def test_plaintext_remote_urls_are_refused(self):
         with self.assertRaises(RemoteError):

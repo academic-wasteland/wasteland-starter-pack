@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wasteland-starter-pack"
+version = "0.1.0"
+description = "Independent laptop towns and a durable relay for the Academic Wasteland"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+readme = "README.md"
+dependencies = []
+
+[project.scripts]
+wasteland = "wasteland.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["wasteland*"]

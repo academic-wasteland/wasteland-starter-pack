@@ -1,0 +1,15 @@
+[Unit]
+Description=Academic Wasteland bridge for %i
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/Public/software/academic-wasteland/wasteland-starter-pack
+Environment=PYTHONUNBUFFERED=1
+ExecStart=%h/Public/software/academic-wasteland/pangenome-town/.venv/bin/python -m wasteland --state %h/.config/wasteland-bridge/%i bridge --town-config %h/Public/software/academic-wasteland/%i/town.toml
+Restart=on-failure
+RestartSec=5
+UMask=0077
+
+[Install]
+WantedBy=default.target

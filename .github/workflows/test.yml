@@ -1,0 +1,17 @@
+name: Starter pack checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  relay:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python: ['3.11', '3.13']
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python3 tests/run_checks.py

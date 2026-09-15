@@ -1,0 +1,16 @@
+[Unit]
+Description=Academic Wasteland HTTPS mailbox relay
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/wasteland-starter-pack
+ExecStart=/usr/bin/python3 -m wasteland --state %h/.local/share/wasteland-relay hub --public-url https://leechuck.de/wasteland
+Restart=on-failure
+RestartSec=5
+UMask=0077
+NoNewPrivileges=yes
+PrivateTmp=yes
+
+[Install]
+WantedBy=default.target

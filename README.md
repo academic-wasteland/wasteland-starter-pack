@@ -16,7 +16,22 @@ for the starter town. Linux and macOS are supported; use WSL on Windows. Keep th
 terminal running to answer requests. Messages wait at the relay while you are
 offline.
 
-## Join in five minutes
+## Guided onboarding (recommended)
+
+```bash
+python3 -m wasteland onboard
+```
+
+Choose your town name, agents, files to publish, and whom to trust. Enter accepts
+sensible defaults. Every setup includes a **contactable `guide` resident**, even
+without a model or API key. Add agents using a local or hosted model if desired.
+No files are shared by default. Setup can start the worker immediately; outside
+towns can then use `message`, and the cockpit shows **Message a resident**.
+
+[Onboarding decisions, defaults, model setup, and trust](docs/onboarding.md).
+Re-run onboarding to update an existing town, including a basic echo-only town.
+
+## Manual join in five minutes
 
 1. Clone this repository (or use GitHub's **Use this template** button).
 
@@ -78,7 +93,8 @@ directory.
 
 ## Give your town a research capability
 
-The built-in worker answers `echo` and `describe`. The supplied example counts
+The manual-join worker answers `echo` and `describe`; the onboarding worker also
+serves residents and explicitly selected resources. The supplied example counts
 words, entirely on your own CPU:
 
 ```bash
@@ -117,7 +133,7 @@ handler rules, restart semantics, and integration with a full Gas City town.
 | Ubar / Yamatai | `variants` | Validated public variant-count claims for a bounded region |
 | Ubar / Yamatai | `haplotypes` | Public haplotype query claims for a bounded region |
 | Camelot | `describe` / `issuers` | The live registrar's public issuer keys and accreditations |
-| Any of the three | `message` | Delivery to a resident agent, with a separate delivery acknowledgment |
+| Any of the three | `message` | General-contact directory answer; specify `resident` for an agent conversation |
 
 Try a real, small public-data query:
 

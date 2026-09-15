@@ -37,6 +37,16 @@ def main():
     join_cmd.add_argument("--display")
     join_cmd.add_argument("--hub", default=DEFAULT_HUB)
     join_cmd.add_argument("--invite-file", type=Path)
+    onboard = sub.add_parser(
+        "onboard",
+        aliases=["setup"],
+        help="choose residents, resources and trust with sensible defaults",
+    )
+    onboard.add_argument("--hub", default=DEFAULT_HUB)
+    onboard.add_argument("--invite-file", type=Path)
+    onboard.add_argument(
+        "--no-start", action="store_true", help="save setup without starting the worker"
+    )
     discover = sub.add_parser("discover")
     discover.add_argument("--hub", default=DEFAULT_HUB)
     work = sub.add_parser("work", help="run the local worker (outbound HTTPS only)")
@@ -50,7 +60,9 @@ def main():
     send.add_argument("--operation", default="echo")
     send.add_argument("--body", type=Path)
     send.add_argument("--wait", type=float, default=0, metavar="SECONDS")
-    resource = sub.add_parser("resource", help="download a published town resource with digest verification")
+    resource = sub.add_parser(
+        "resource", help="download a published town resource with digest verification"
+    )
     resource.add_argument("town")
     resource.add_argument("id")
     resource.add_argument("--out", type=Path, required=True)
@@ -76,7 +88,11 @@ def main():
     bridge.add_argument("--town-config", type=Path, required=True)
     args = parser.parse_args()
     try:
-        if args.command == "join":
+        if args.command in {"onboard", "setup"}:
+            from .onboarding import run
+
+            run(args.state, args.hub, args.invite_file, args.no_start)
+        elif args.command == "join":
             invitation = (
                 args.invite_file.read_text().strip()
                 if args.invite_file
@@ -113,7 +129,12 @@ def main():
                 print(json.dumps(client.wait(message_id, args.wait), indent=2))
         elif args.command == "resource":
             from .resources import download
-            print(json.dumps(download(Client(args.state), args.town, args.id, args.out), indent=2))
+
+            print(
+                json.dumps(
+                    download(Client(args.state), args.town, args.id, args.out), indent=2
+                )
+            )
         elif args.command in {"get", "inbox"}:
             route = "/v1/messages/" + args.id if args.command == "get" else "/v1/inbox"
             print(json.dumps(Client(args.state).call(route), indent=2))
@@ -159,6 +180,8 @@ def main():
             run(args.state, args.town_config)
     except (RemoteError, ProtocolError, OSError, ValueError) as error:
         parser.exit(1, f"Error: {error}\n")
+    except EOFError:
+        parser.exit(1, "Input ended; run onboarding in an interactive terminal.\n")
     except KeyboardInterrupt:
         sys.exit(0)
 

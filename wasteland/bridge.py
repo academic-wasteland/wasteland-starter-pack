@@ -4,7 +4,6 @@ Public analysis operations construct bounded tasks locally; a participant cannot
 supply an ORCID, credentials, command, template or arbitrary A2A document.
 """
 
-import dataclasses
 import json
 import urllib.request
 
@@ -80,11 +79,7 @@ class Bridge:
         )
         if message["kind"] == "answer":
             self.log.set_status(message["in_reply_to"], "answered")
-        if (
-            message["kind"] == "question"
-            and (message["body"].get("operation") != "message"
-                 or message["body"].get("resident") in {"q", "bloodninja"})
-        ):
+        if message["kind"] == "question":
             self.log.set_status(message["id"], "dispatched")
             self.log.event(
                 self.town.name,
@@ -115,8 +110,8 @@ class Bridge:
             except (ComputeError, OSError) as error:
                 return {"ok": False, "error": str(error)}
         if operation == "delegated-compute":
-            from pangenome_town.compute.delegation import execute
             from pangenome_town.compute import ComputeError
+            from pangenome_town.compute.delegation import execute
             task = body.get("task")
             if not isinstance(task, dict):
                 return {"ok": False, "state": "rejected", "error": "execution task required"}
@@ -154,6 +149,9 @@ class Bridge:
         if operation in {"variants", "haplotypes"} and self.town.kind == "pangenome":
             return self.query(message, operation)
         if operation == "message":
+            if body.get("resident") in {None, "contact", "guide"}:
+                from pangenome_town.contacts import directory
+                return directory(self.town, public=True)
             return self.deliver(message)
         return {
             "ok": False,
@@ -238,7 +236,6 @@ class Bridge:
     def deliver(self, message):
         """Deliver to a resident; the acknowledgment is distinct from the later agent answer."""
         from pangenome_town import mail
-        from pangenome_town.envoy import EnvoyState
         from pangenome_town.exchange import Envelope
 
         resident = message["body"].get("resident")
@@ -251,15 +248,7 @@ class Bridge:
                 return {"ok": False, "error": str(error)}
             self.log.event(self.town.name, "resident_delivered", message["id"], {"resident": resident, "mail_id": receipt["id"]})
         elif self.town.kind != "authority":
-            town = dataclasses.replace(
-                self.town, peers={**self.town.peers, message["from"]: message["from"]}
-            )
-            status, result = EnvoyState(town, self.log).receive(message)
-            if status >= 400 or result.get("delivery", {}).get("skipped"):
-                return {
-                    "ok": False,
-                    "error": "resident delivery unavailable; try again when the city has an agent session",
-                }
+            return {"ok": False, "error": "unknown public resident; use general contact, q or bloodninja where available"}
         else:
             resident = message["body"].get("resident", "irb")
             if resident not in {"irb", "dac"}:
@@ -288,6 +277,9 @@ def run(directory, town_config):
     config["capabilities"] = ["echo", "ping", "describe", "message", "resources", "resource"] + (
         ["issuers"] if bridge.town.kind == "authority" else ["variants", "haplotypes", "datasets", "delegated-compute"]
     )
+    config["capabilities"].append("resident:contact")
+    if bridge.town.kind == "authority":
+        config["capabilities"].extend(["resident:irb", "resident:dac"])
     config["capabilities"].extend("resident:" + name for name in ("q", "bloodninja")
                                  if (bridge.town.city_root / "agents" / name / "agent.toml").is_file())
     save_config(directory, config)

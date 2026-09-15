@@ -75,6 +75,15 @@ def save_config(directory, config):
     return path
 
 
+def advertisement(config):
+    """Only public relay metadata; never transmit local handler/model/file settings."""
+    return {
+        "name": config["name"],
+        "display": config.get("display", config["name"]),
+        "capabilities": config.get("capabilities", ["echo", "describe"]),
+    }
+
+
 def join(directory, base, town, invite, display=None):
     directory = Path(directory)
     path = directory / "town.json"
@@ -93,7 +102,12 @@ def join(directory, base, town, invite, display=None):
             "capabilities": ["echo", "describe"],
         }
         save_config(directory, config)  # store before registering, so retry is safe
-    request(base, "/v1/register", token=invite, data=config)
+    request(
+        base,
+        "/v1/register",
+        token=invite,
+        data={**advertisement(config), "token": config["token"]},
+    )
     return config
 
 
@@ -160,13 +174,17 @@ class Worker:
     def __init__(
         self,
         directory,
-        handler=default_handler,
+        handler=None,
         on_reply=None,
         on_receive=None,
         reply_kind=None,
     ):
         self.client = Client(directory)
-        self.handler = handler
+        self.handler = handler or (
+            load_handler(self.client.config["handler"])
+            if self.client.config.get("handler")
+            else default_handler
+        )
         self.on_reply = on_reply
         self.on_receive = on_receive
         self.reply_kind = reply_kind
@@ -239,7 +257,7 @@ class Worker:
         while stop is None or not stop.is_set():
             try:
                 if not advertised:
-                    self.client.call("/v1/heartbeat", self.client.config)
+                    self.client.call("/v1/heartbeat", advertisement(self.client.config))
                     advertised = True
                 count = self.tick()
                 if count:

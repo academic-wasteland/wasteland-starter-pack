@@ -10,7 +10,7 @@ python3 tests/run_checks.py
 ```
 
 ```output
-PASS: 17 relay, isolation, recovery and independent-worker checks
+PASS: 18 relay, isolation, recovery and independent-worker checks
 ```
 
 Live test from a fresh public Git clone on lcde, a different host from the workstation running the cities. The client uses only standard-library Python and has no pangenome-town installation or shared city database. Replay updates this clean checkout to the published version; the invitation and test state remain private on that host.
@@ -22,7 +22,7 @@ ssh lcde 'cd /home/leechuck/wasteland-starter-smoke-clean && git pull --ff-only 
 
 ```output
 PASS: remote client has no pangenome-town installation
-PASS: 17 relay, isolation, recovery and independent-worker checks
+PASS: 18 relay, isolation, recovery and independent-worker checks
 PASS: HTTPS discovery advertises Ubar, Yamatai and Camelot
 PASS: two independently named towns registered with separate credentials and state
 PASS: separate worker processes exchanged requests in both directions; custom handler ran locally
@@ -47,3 +47,5 @@ PASS: ubar initiated a native request; the remote town executed it and replied o
 PASS: yamatai initiated a native request; the remote town executed it and replied over HTTPS
 PASS: camelot initiated a native request; the remote town executed it and replied over HTTPS
 ```
+
+Updated 15 September 2026 after adding verified resource downloads. The suite now contains 18 checks. The remote fresh-clone, all-three-city interoperability and native reverse-message tests above were rerun successfully.

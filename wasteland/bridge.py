@@ -92,8 +92,9 @@ class Bridge:
         body = message["body"]
         operation = body.get("operation", "echo")
         if operation == "phenotype-search":
-            from pangenome_town.phenotypes import search
             import subprocess
+
+            from pangenome_town.phenotypes import search
             try:
                 return search(self.town, body)
             except (ValueError, OSError, subprocess.TimeoutExpired) as error:

@@ -47,6 +47,8 @@ def main():
     onboard.add_argument(
         "--no-start", action="store_true", help="save setup without starting the worker"
     )
+    dashboard = sub.add_parser("dashboard", help="local town controls, mail and federation map")
+    dashboard.add_argument("--port", type=int, default=8394)
     discover = sub.add_parser("discover")
     discover.add_argument("--hub", default=DEFAULT_HUB)
     work = sub.add_parser("work", help="run the local worker (outbound HTTPS only)")
@@ -92,6 +94,10 @@ def main():
             from .onboarding import run
 
             run(args.state, args.hub, args.invite_file, args.no_start)
+        elif args.command == "dashboard":
+            from .dashboard import serve as serve_dashboard
+
+            serve_dashboard(args.state, args.port)
         elif args.command == "join":
             invitation = (
                 args.invite_file.read_text().strip()

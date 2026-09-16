@@ -253,3 +253,36 @@ Best-Match Average. Use `"method":"baseline"` for the original Lin/Resnik + BMA
 baseline instead. Both return ranked **mouse MGI genes** and method provenance;
 these are research similarity scores, not diagnoses. Learned inference is fast;
 allow up to four minutes for the baseline. The resident is `phenomancer`.
+
+## Your town dashboard
+
+After onboarding, open a second terminal and run:
+
+```sh
+wasteland --state .town dashboard
+```
+
+Open **http://127.0.0.1:8394/** in your browser. The town map lists other towns,
+last contact times and published capabilities. Select a town to message its
+general contact or a named resident, request its full profile, or list its shared
+resources. Requests and replies remain in the activity view across restarts;
+expand a message to inspect its full response.
+
+The dashboard can start/pause its local worker, publish/unpublish individual
+files, and edit trust rules. Stop any existing `wasteland work` process before
+starting the dashboard worker. Closing the browser leaves the worker running;
+stopping the dashboard server stops the worker it owns. Pausing leaves incoming
+messages queued. A worker lock prevents two newly started workers from processing
+the same town simultaneously. Workers refresh relay presence every 30 seconds.
+
+Add or configure agents with `wasteland --state .town onboard --no-start`, then
+restart the dashboard worker. The default guide remains contactable without an
+LLM. Existing model configurations and credentials are preserved when dashboard
+trust or resource settings change. Changes restart the dashboard-owned worker;
+let a model reply finish before changing its settings.
+
+This operator interface binds only to localhost and checks the browser origin
+and a per-process control token. Relay credentials never enter the browser. The
+network-facing hackathon demonstration is a separate service; do not expose this
+operator dashboard by changing its bind address. Use `--port` for multiple local
+town dashboards. All runtime assets ship in the package; no CDN is required.

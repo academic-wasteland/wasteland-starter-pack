@@ -265,6 +265,7 @@ def run(directory, hub, invite_file=None, no_start=False):
     command = "python3 -m wasteland --state " + shlex.quote(str(directory)) + " work"
     print("\nSaved private setup:", path)
     print("Start/restart:", command)
+    print("Dashboard: python3 -m wasteland --state " + shlex.quote(str(directory)) + " dashboard")
     print(
         f'Outside towns can use: python3 -m wasteland send {configured["name"]} "Hello" --operation message --wait 120'
     )

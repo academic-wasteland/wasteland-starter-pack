@@ -254,12 +254,22 @@ class Worker:
         return len(messages)
 
     def run(self, interval=2, stop=None):
-        advertised = False
+        import fcntl
+
+        with (self.client.directory / "worker.lock").open("a") as lock:
+            try:
+                fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except BlockingIOError:
+                raise RemoteError("a worker already runs for this town; stop it before starting another") from None
+            self._run(interval, stop)
+
+    def _run(self, interval=2, stop=None):
+        advertised = 0.0
         while stop is None or not stop.is_set():
             try:
-                if not advertised:
+                if time.monotonic() - advertised >= 30:
                     self.client.call("/v1/heartbeat", advertisement(self.client.config))
-                    advertised = True
+                    advertised = time.monotonic()
                 count = self.tick()
                 if count:
                     print(

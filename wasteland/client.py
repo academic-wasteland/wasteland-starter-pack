@@ -124,7 +124,8 @@ class Client:
         return self.call("/v1/messages", message)
 
     def ask(self, to, *, operation="echo", text="", body=None):
-        message = envelope(self.name, to, text, operation, body=body)
+        message = envelope(self.name, to, text, operation,
+                           body=None if body is None else {"text": text, "operation": operation, **body})
         self.send(message)
         return message["id"]
 

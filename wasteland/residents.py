@@ -55,9 +55,10 @@ def handle(message, config):
             "name": config["name"],
             "display": config["display"],
             "description": config.get("description", ""),
+            "interests": config.get("interests", []),
             "capabilities": capabilities(config),
             "residents": [
-                {"name": a["name"], "role": a["role"], "mode": a["mode"]}
+                {"name": a["name"], "role": a["role"], "mode": a["mode"], "interests": a.get("interests", [])}
                 for a in config["residents"]
             ],
             "text": "Send operation message with an optional resident name. Resource access is decided locally.",

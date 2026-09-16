@@ -91,6 +91,13 @@ class Bridge:
     def handle(self, message, config):
         body = message["body"]
         operation = body.get("operation", "echo")
+        if operation == "phenotype-search":
+            from pangenome_town.phenotypes import search
+            import subprocess
+            try:
+                return search(self.town, body)
+            except (ValueError, OSError, subprocess.TimeoutExpired) as error:
+                return {"ok": False, "error": str(error)}
         if operation == "datasets":
             from pangenome_town.compute.delegation import catalog
             return {"ok": True, "datasets": [{k: d[k] for k in ("id", "version", "custodian", "samples", "manifest", "public_key", "workflows", "access")}
@@ -239,7 +246,7 @@ class Bridge:
         from pangenome_town.exchange import Envelope
 
         resident = message["body"].get("resident")
-        if resident in {"q", "bloodninja"}:
+        if resident in {"q", "bloodninja", "bloodninja_scout", "phenomancer", "sam", "bob"}:
             if not (self.town.city_root / "agents" / resident / "agent.toml").is_file():
                 return {"ok": False, "error": "resident is not available in this town"}
             try:
@@ -280,8 +287,10 @@ def run(directory, town_config):
     config["capabilities"].append("resident:contact")
     if bridge.town.kind == "authority":
         config["capabilities"].extend(["resident:irb", "resident:dac"])
-    config["capabilities"].extend("resident:" + name for name in ("q", "bloodninja")
+    config["capabilities"].extend("resident:" + name for name in ("q", "bloodninja", "bloodninja_scout", "phenomancer", "sam", "bob")
                                  if (bridge.town.city_root / "agents" / name / "agent.toml").is_file())
+    if bridge.town.extra.get("phenotype_search", {}).get("enabled"):
+        config["capabilities"].append("phenotype-search")
     save_config(directory, config)
     Worker(
         directory,

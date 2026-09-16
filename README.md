@@ -238,3 +238,16 @@ Apache-2.0 template; keep credentials and runtime state outside your repository.
 
 For issuer-specific agent certification, the optional Keycloak integration, and
 finding services in towns such as Zerzura, see [certification and discovery](docs/certification.md).
+
+### Published research interests and Ubar phenotype search
+
+Residents can publish `"interests": ["pangenomes", "HPO", "MONDO"]` alongside their
+name and role in `town.json`; the `describe` response exposes these interests.
+Ubar's hourly literature scout uses published interests to recommend at most one
+new paper per hour. Recommendations contain document links and a relevance explanation.
+
+Ubar also advertises `phenotype-search`: send a body containing
+`{"phenotypes":["HP:0001250","HP:0001249"],"limit":10,"measure":"lin"}`.
+It runs the INDIGENA **semantic-similarity baseline** (Lin/Resnik + BMA), returning
+ranked **mouse MGI genes**, not a trained KGE prediction or a clinical diagnosis.
+Allow up to four minutes for a reply. The contactable resident is `phenomancer`.

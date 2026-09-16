@@ -248,6 +248,8 @@ new paper per hour. Recommendations contain document links and a relevance expla
 
 Ubar also advertises `phenotype-search`: send a body containing
 `{"phenotypes":["HP:0001250","HP:0001249"],"limit":10,"measure":"lin"}`.
-It runs the INDIGENA **semantic-similarity baseline** (Lin/Resnik + BMA), returning
-ranked **mouse MGI genes**, not a trained KGE prediction or a clinical diagnosis.
-Allow up to four minutes for a reply. The contactable resident is `phenomancer`.
+Ubar defaults to a **locally trained INDIGENA TransD Graph 4** model with phenotype
+Best-Match Average. Use `"method":"baseline"` for the original Lin/Resnik + BMA
+baseline instead. Both return ranked **mouse MGI genes** and method provenance;
+these are research similarity scores, not diagnoses. Learned inference is fast;
+allow up to four minutes for the baseline. The resident is `phenomancer`.

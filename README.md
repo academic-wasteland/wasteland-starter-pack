@@ -326,3 +326,20 @@ The [live private-variant demo](https://leechuck.de/wasteland-live/demo/phenotyp
 keeps a synthetic VCF at Yamatai, reranks locally with frequency and REVEL,
 and sends only the selected allele and phenotypes to Themis.
 [Scope, payloads, evidence and setup](https://github.com/academic-wasteland/pangenome-town/blob/main/docs/private-variant-demo.md).
+
+
+### Named people and conversations
+
+Open `http://localhost:8394/conversations` from your dashboard. Add a person with
+a display name and optional membership in your town; their UUID remains stable
+when renamed. Choose a town and advertised agent, send a message, and inspect its
+text, data and replies in a persistent conversation. The starter dashboard and
+the main cockpit share this interface.
+
+These are local operator profiles, not public login accounts or permission
+certificates. Your town still authenticates relay messages and applies its own
+trust policy. A delivery acknowledgement is distinct from an agent reply.
+Remote work remains unobservable until the remote town reports it. “Request
+stop” asks the recipient to stop; it cannot unilaterally cancel remote jobs.
+
+[Identity, tracing and diagnostic workflow documentation](https://github.com/academic-wasteland/pangenome-town/blob/main/docs/conversations.md)

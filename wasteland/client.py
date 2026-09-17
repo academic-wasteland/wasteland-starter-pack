@@ -211,7 +211,14 @@ class Worker:
                 reply = None
                 if message["kind"] == "question":
                     try:
-                        body = self.handler(message, self.client.config)
+                        from .conversations import CONTEXT, context, child_context
+                        trace = context(message['body'][CONTEXT]) if CONTEXT in message['body'] else None
+                        delivered = dict(message, body={k: v for k, v in message['body'].items() if k != CONTEXT})
+                        if trace:
+                            delivered[CONTEXT] = trace
+                        body = self.handler(delivered, self.client.config)
+                        if trace and isinstance(body, dict):
+                            body = dict(body, **{CONTEXT: child_context(trace, message['id'])})
                     except Exception as error:  # noqa: BLE001 - isolate trusted local handler failures
                         body = {
                             "ok": False,

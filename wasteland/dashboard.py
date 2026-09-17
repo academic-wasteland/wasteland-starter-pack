@@ -23,6 +23,8 @@ class Dashboard:
         self.client = Client(directory)
         self.token = secrets.token_urlsafe(32)
         self.lock = threading.RLock()
+        from .conversations import RelayHub
+        self.conversations = RelayHub(directory)
         self.process = None
         self.log = None
         with self.db() as db:
@@ -123,6 +125,8 @@ class Dashboard:
 
     def action(self, action, body):
         with self.lock:
+            if action.startswith('conversations/'):
+                return self.conversations.action(action.split('/', 1)[1], body)
             if action == 'start':
                 return self.start()
             if action == 'stop':
@@ -204,6 +208,13 @@ def handler(state):
                 if path == '/':
                     page = Path(__file__).with_name('dashboard.html').read_text().replace('__TOKEN__', state.token)
                     self.reply(200, page.encode(), 'text/html; charset=utf-8')
+                elif path == '/conversations':
+                    page = Path(__file__).with_name('conversations.html').read_text().replace('__TOKEN_HEADER__', 'X-Town-Token').replace('__TOKEN__', state.token)
+                    self.reply(200, page.encode(), 'text/html; charset=utf-8')
+                elif path == '/api/conversations':
+                    from urllib.parse import parse_qs
+                    cid = parse_qs(urlsplit(self.path).query).get('id', [None])[0]
+                    self.reply(200, state.conversations.snapshot(cid))
                 elif path == '/api/state':
                     self.reply(200, state.snapshot())
                 else:

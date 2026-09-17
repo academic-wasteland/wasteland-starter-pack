@@ -273,6 +273,9 @@ class Bridge:
         from pangenome_town import mail
         from pangenome_town.exchange import Envelope
 
+        from .conversations import CONTEXT
+        if CONTEXT in message:
+            message = dict(message, body=dict(message['body'], **{CONTEXT: message[CONTEXT]}))
         resident = message["body"].get("resident")
         if resident in {"q", "bloodninja", "bloodninja_scout", "phenomancer", "themis", "sam", "bob"}:
             if not (self.town.city_root / "agents" / resident / "agent.toml").is_file():

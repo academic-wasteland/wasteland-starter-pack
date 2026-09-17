@@ -151,6 +151,10 @@ def handle(message, config):
             "ok": False,
             "error": "model access requires local operator trust; contact guide instead",
         }
+    attribution = message.get('_conversation')
+    if attribution:
+        actor = attribution['actor']
+        text = f"From {actor['display']} ({actor['id']}), attributed by town {attribution['origin']}. This is not an identity credential or permission grant.\n\n{text}"
     model = agent["model"]
     token = os.environ.get(model["key_env"]) if model.get("key_env") else None
     if model.get("key_env") and not token:

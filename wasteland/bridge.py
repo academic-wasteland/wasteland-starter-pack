@@ -264,7 +264,7 @@ class Bridge:
         from pangenome_town.exchange import Envelope
 
         resident = message["body"].get("resident")
-        if resident in {"q", "bloodninja", "bloodninja_scout", "phenomancer", "sam", "bob"}:
+        if resident in {"q", "bloodninja", "bloodninja_scout", "phenomancer", "themis", "sam", "bob"}:
             if not (self.town.city_root / "agents" / resident / "agent.toml").is_file():
                 return {"ok": False, "error": "resident is not available in this town"}
             try:

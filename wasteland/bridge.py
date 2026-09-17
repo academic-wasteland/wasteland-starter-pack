@@ -104,8 +104,12 @@ class Bridge:
         if operation == "message" and body.get("resident") == "contact" and body.get("workflow") == "phenotype-research":
             from pangenome_town.research_intake import intake
             try:
-                return intake(self.town, body)
-            except ValueError as error:
+                from .fair import validate
+                import json
+                from pathlib import Path
+                records = validate(json.loads(Path(config['fair_catalogue']).read_text()), self.town.name)
+                return intake(self.town, body, records=records, sender=message['from'])
+            except (ValueError, OSError, KeyError) as error:
                 return {"ok": False, "text": str(error), "error": str(error)}
         if operation == "variant-interpretation":
             try:

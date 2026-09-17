@@ -232,8 +232,8 @@
       "kind": "service",
       "publisher": "urn:wasteland:town:ubar",
       "title": "Contact: phenotype research intake and delegation",
-      "description": "Receive a human-readable synthetic research question with phenotype labels and workflow settings; reply with explanatory text and a bounded service delegation plan. The plan is selected from structured fields, not unrestricted natural-language interpretation.",
-      "version": "intake-v1",
+      "description": "Receive a diagnostic question, phenotype label\u2013ID pairs and optional owner-supplied VCF metadata. Select advertised services and assemble a bounded plan that respects compute and disclosure permissions. No workflow instructions are required from the human.",
+      "version": "intake-v2",
       "keywords": [
         "research intake",
         "delegation",
@@ -251,7 +251,7 @@
           "title": "Human question with structured phenotype payload",
           "semanticType": "http://semanticscience.org/resource/SIO_000015",
           "format": "application/json",
-          "constraints": "text: 1\u20131200 characters; resident: contact; phenotypes: 1\u201330 labels or IDs; private_case: boolean. No VCF uploads or additional patient fields. workflow: phenotype-research."
+          "constraints": "text: 1\u20131200 characters; resident: contact; phenotypes: 1\u201330 label\u2013ID pairs; resources: zero or one synthetic VCF metadata description (id, kind, synthetic, owner, policy, local_service). workflow: phenotype-research. Raw VCF, paths and patient identifiers forbidden."
         }
       ],
       "outputs": [
@@ -272,19 +272,44 @@
         "contact": "ubar/contact"
       },
       "documentation": "https://github.com/academic-wasteland/pangenome-town/blob/main/docs/private-variant-demo.md",
-      "provenance": "Academic Wasteland deterministic contact service; routes to Phenomancer, Yamatai local prioritization and Themis.",
-      "limitations": "Synthetic research workflow only. No VCF or patient identifiers. A delegation is not a permission grant or clinical recommendation.",
+      "provenance": "Bounded diagnostic planner using validated provider-owned FAIR descriptions and metadata from the authenticated resource owner. The owner rechecks its policy before disclosure.",
+      "limitations": "Supports phenotype prioritization and an optional owner-local synthetic VCF with a single-allele evidence report. Service adapters are preimplemented; this is not unrestricted natural-language planning. Free text cannot grant data access. Metadata is not a cryptographic permission certificate or clinical approval.",
       "example": {
         "operation": "message",
         "resident": "contact",
-        "text": "Please help prioritize genes for a synthetic patient. Keep the VCF at Yamatai.",
+        "text": "Help diagnose this patient from their phenotypes and VCF. Explain the evidence and respect the data access restrictions.",
         "phenotypes": [
-          "HPO: Ectopia lentis",
-          "HPO: Arachnodactyly",
-          "HPO: Aortic root aneurysm"
+          "Ectopia lentis (HP:0001083)",
+          "Arachnodactyly (HP:0001166)",
+          "Aortic root aneurysm (HP:0002616)"
         ],
-        "private_case": true,
-        "workflow": "phenotype-research"
+        "workflow": "phenotype-research",
+        "resources": [
+          {
+            "id": "urn:wasteland:resource:yamatai:synthetic-patient-vcf",
+            "kind": "VCF",
+            "synthetic": true,
+            "owner": "yamatai",
+            "policy": {
+              "raw_data_export": false,
+              "compute_towns": [
+                "yamatai"
+              ],
+              "phenotype_recipients": [
+                "ubar"
+              ],
+              "selected_variant_recipients": [
+                "ubar"
+              ]
+            },
+            "local_service": {
+              "town": "yamatai",
+              "resident": "coordinator",
+              "operation": "private-variant-rank",
+              "transport": "local"
+            }
+          }
+        ]
       },
       "license": "https://creativecommons.org/licenses/by/4.0/"
     }

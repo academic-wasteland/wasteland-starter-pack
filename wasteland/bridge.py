@@ -91,6 +91,13 @@ class Bridge:
     def handle(self, message, config):
         body = message["body"]
         operation = body.get("operation", "echo")
+        if operation.startswith('credential-') and self.town.kind == 'authority':
+            from pangenome_town.authority.relay import RelayAuthority
+            from pangenome_town.cli_resources import registry_for
+            try:
+                return RelayAuthority(registry_for(self.town, None), self.town.name).handle(message['from'], body)
+            except (ValueError, TypeError, KeyError) as error:
+                return {'ok': False, 'error': str(error)}
         if operation == "fair-catalogue":
             from .fair import published
             return published(config, body)
@@ -286,7 +293,7 @@ def run(directory, town_config):
         raise ValueError("bridge credential must match the configured town")
     config["display"] = bridge.town.display
     config["capabilities"] = ["echo", "ping", "describe", "message", "resources", "resource"] + (
-        ["issuers"] if bridge.town.kind == "authority" else ["variants", "haplotypes", "datasets", "delegated-compute"]
+        ["issuers", "credential-challenge", "credential-apply", "credential-fetch", "credential-status"] if bridge.town.kind == "authority" else ["variants", "haplotypes", "datasets", "delegated-compute"]
     )
     config["capabilities"].append("resident:contact")
     if bridge.town.kind == "authority":

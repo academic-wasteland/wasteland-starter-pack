@@ -297,3 +297,8 @@ demonstrations; it never grants access or launches compute while indexing.
 Publish a description with `wasteland --state .town fair-publish catalogue.jsonld`.
 Run your own index with `wasteland --state .town fair-city`.
 See [the FAIR profile, examples, access model and deployment](docs/fair-services.md).
+
+## Credentials
+
+[Apply for holder-bound credentials and verify signed revocation status](docs/credentials.md).
+Real qualifications require manual evidence review; towns choose their own trusted issuers.

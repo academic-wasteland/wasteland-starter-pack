@@ -11,6 +11,9 @@ license = "Apache-2.0"
 readme = "README.md"
 dependencies = []
 
+[project.optional-dependencies]
+credentials = ["cryptography>=43"]
+
 [project.scripts]
 wasteland = "wasteland.__main__:main"
 

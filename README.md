@@ -302,3 +302,9 @@ See [the FAIR profile, examples, access model and deployment](docs/fair-services
 
 [Apply for holder-bound credentials and verify signed revocation status](docs/credentials.md).
 Real qualifications require manual evidence review; towns choose their own trusted issuers.
+
+## Operating standards
+
+[Concord](https://leechuck.de/wasteland-concord/) publishes opt-in versioned
+profiles and inspectable test evidence, alongside FAIRhaven's service catalogue.
+[Run conformance checks or host a standards town](docs/concord.md).

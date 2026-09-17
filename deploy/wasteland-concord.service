@@ -1,0 +1,16 @@
+[Unit]
+Description=Concord standards and conformance evidence town
+After=network-online.target wasteland-relay.service
+
+[Service]
+Type=simple
+WorkingDirectory=%h/wasteland-concord
+ExecStart=/usr/bin/python3 -m wasteland --state %h/.config/wasteland-concord concord-city --bind 127.0.0.1 --port 8398
+Restart=on-failure
+RestartSec=5
+UMask=0077
+NoNewPrivileges=yes
+PrivateTmp=yes
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,129 @@
+{
+  "id": "https://leechuck.de/wasteland-concord/profiles/signed-status-receiver/1.0.0",
+  "slug": "signed-status-receiver",
+  "version": "1.0.0",
+  "title": "Signed status receiver",
+  "summary": "Reject credentials unless their issuer-signed status is active, correctly bound and fresh.",
+  "status": "published",
+  "maintainer": "Academic Wasteland / Concord",
+  "license": "https://www.apache.org/licenses/LICENSE-2.0",
+  "test_interface": "Python adapter(case) -> bool; True means accepted; exceptions are test errors, not successful rejection.",
+  "requirements": [
+    {
+      "id": "active",
+      "level": "MUST",
+      "text": "Accept a correctly signed, bound and fresh active statement.",
+      "expected_accept": true
+    },
+    {
+      "id": "revoked",
+      "level": "MUST",
+      "text": "Reject revoked status.",
+      "expected_accept": false
+    },
+    {
+      "id": "suspended",
+      "level": "MUST",
+      "text": "Reject suspended status.",
+      "expected_accept": false
+    },
+    {
+      "id": "unknown",
+      "level": "MUST",
+      "text": "Reject unknown status.",
+      "expected_accept": false
+    },
+    {
+      "id": "unsigned",
+      "level": "MUST",
+      "text": "Reject an unsigned statement.",
+      "expected_accept": false
+    },
+    {
+      "id": "tampered",
+      "level": "MUST",
+      "text": "Reject a statement changed after signing.",
+      "expected_accept": false
+    },
+    {
+      "id": "untrusted-key",
+      "level": "MUST",
+      "text": "Verify with receiver-configured keys, never a response-provided key.",
+      "expected_accept": false
+    },
+    {
+      "id": "wrong-issuer",
+      "level": "MUST",
+      "text": "Bind the status issuer to the credential issuer.",
+      "expected_accept": false
+    },
+    {
+      "id": "wrong-credential",
+      "level": "MUST",
+      "text": "Bind the statement to the exact credential.",
+      "expected_accept": false
+    },
+    {
+      "id": "wrong-status-id",
+      "level": "MUST",
+      "text": "Bind the statement to the credential status reference.",
+      "expected_accept": false
+    },
+    {
+      "id": "wrong-request-id",
+      "level": "MUST",
+      "text": "Require the echoed requested ID to match the credential or status ID.",
+      "expected_accept": false
+    },
+    {
+      "id": "stale",
+      "level": "MUST",
+      "text": "Reject statements older than 60 seconds.",
+      "expected_accept": false
+    },
+    {
+      "id": "expired",
+      "level": "MUST",
+      "text": "Reject at the valid_until boundary.",
+      "expected_accept": false
+    },
+    {
+      "id": "future",
+      "level": "MUST",
+      "text": "Reject statements issued in the future (strict-clock profile).",
+      "expected_accept": false
+    },
+    {
+      "id": "long-window",
+      "level": "MUST",
+      "text": "Reject validity windows longer than 60 seconds.",
+      "expected_accept": false
+    },
+    {
+      "id": "missing-expiry",
+      "level": "MUST",
+      "text": "Require an explicit valid_until.",
+      "expected_accept": false
+    },
+    {
+      "id": "naive-time",
+      "level": "MUST",
+      "text": "Require timezone-aware timestamps.",
+      "expected_accept": false
+    }
+  ],
+  "not_tested": [
+    "Transport authentication and availability",
+    "Credential expiry and issuer accreditation chains",
+    "Dataset authorization, execution and release gates"
+  ],
+  "example": {
+    "request": {
+      "operation": "credential-status",
+      "id": "https://example.org/credentials/UUID"
+    },
+    "compatibility": "Providers may also accept credential and status_id; conflicting supplied identifiers must be rejected."
+  },
+  "governance": "Towns opt in. No authority or data permission follows from a test pass. Published profile documents are immutable; normative changes require a new version. Implementation-specific exceptions remain failures, with an explanation in the report.",
+  "source": "https://github.com/academic-wasteland/wasteland-starter-pack/tree/main/wasteland/concord_profiles"
+}

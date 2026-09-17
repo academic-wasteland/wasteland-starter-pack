@@ -1,0 +1,98 @@
+{
+  "@context": {
+    "title": "http://purl.org/dc/terms/title",
+    "description": "http://purl.org/dc/terms/description",
+    "version": "http://www.w3.org/ns/dcat#version",
+    "keywords": "http://www.w3.org/ns/dcat#keyword",
+    "license": {
+      "@id": "http://purl.org/dc/terms/license",
+      "@type": "@id"
+    },
+    "subjects": {
+      "@id": "http://purl.org/dc/terms/subject",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "publisher": {
+      "@id": "http://purl.org/dc/terms/publisher",
+      "@type": "@id"
+    },
+    "inputs": {
+      "@id": "https://leechuck.de/wasteland-fair/vocabulary#expectsInput",
+      "@container": "@set"
+    },
+    "outputs": {
+      "@id": "https://leechuck.de/wasteland-fair/vocabulary#describesOutput",
+      "@container": "@set"
+    },
+    "semanticType": {
+      "@id": "https://leechuck.de/wasteland-fair/vocabulary#semanticType",
+      "@type": "@id"
+    },
+    "format": "http://purl.org/dc/terms/format",
+    "constraints": "https://leechuck.de/wasteland-fair/vocabulary#constraints",
+    "access": "https://leechuck.de/wasteland-fair/vocabulary#access",
+    "town": "https://leechuck.de/wasteland-fair/vocabulary#town",
+    "resident": "https://leechuck.de/wasteland-fair/vocabulary#resident",
+    "operation": "https://leechuck.de/wasteland-fair/vocabulary#operation",
+    "requirements": "https://leechuck.de/wasteland-fair/vocabulary#requirements",
+    "cost": "https://leechuck.de/wasteland-fair/vocabulary#cost",
+    "contact": "https://leechuck.de/wasteland-fair/vocabulary#contact",
+    "documentation": {
+      "@id": "https://leechuck.de/wasteland-fair/vocabulary#documentation",
+      "@type": "@id"
+    },
+    "provenance": "http://purl.org/dc/terms/provenance",
+    "limitations": "https://leechuck.de/wasteland-fair/vocabulary#limitations",
+    "example": {
+      "@id": "https://leechuck.de/wasteland-fair/vocabulary#example",
+      "@type": "@json"
+    },
+    "kind": "https://leechuck.de/wasteland-fair/vocabulary#kind"
+  },
+  "@graph": [
+    {
+      "@id": "urn:wasteland:fair:concord:standards",
+      "@type": "http://www.w3.org/ns/dcat#DataService",
+      "kind": "service",
+      "publisher": "urn:wasteland:town:concord",
+      "title": "Concord operating standards and conformance evidence",
+      "description": "Versioned opt-in operating profiles, executable local conformance vectors and dated test reports for independent towns.",
+      "version": "1.0.0",
+      "keywords": [
+        "standards",
+        "credentials",
+        "revocation",
+        "conformance",
+        "interoperability"
+      ],
+      "subjects": [
+        "http://semanticscience.org/resource/SIO_000015"
+      ],
+      "license": "https://www.apache.org/licenses/LICENSE-2.0",
+      "outputs": [
+        {
+          "@type": "http://semanticscience.org/resource/SIO_000015",
+          "title": "Profiles and execution reports",
+          "semanticType": "http://semanticscience.org/resource/SIO_000015",
+          "format": "application/json",
+          "constraints": "Versioned profiles, requirement IDs, content digests and per-check outcomes; report coverage is explicitly bounded."
+        }
+      ],
+      "access": {
+        "town": "concord",
+        "resident": "guide",
+        "operation": "standards",
+        "requirements": "Public read-only HTTPS; registered town identity for relay queries. Test adapters run locally under operator control.",
+        "cost": "No automated billing.",
+        "contact": "Message concord/guide, or propose changes in the starter-pack repository."
+      },
+      "documentation": "https://leechuck.de/wasteland-concord/",
+      "provenance": "Maintained by Academic Wasteland. Reports identify profile digest, observer, implementation version, adapter and suite hashes.",
+      "limitations": "Published reports are operator observations, not cryptographic certificates. Passing named synthetic checks does not grant trust, authorization or universal compliance.",
+      "example": {
+        "operation": "standards"
+      }
+    }
+  ]
+}

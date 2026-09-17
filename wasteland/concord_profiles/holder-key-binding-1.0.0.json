@@ -1,0 +1,81 @@
+{
+  "id": "https://leechuck.de/wasteland-concord/profiles/holder-key-binding/1.0.0",
+  "slug": "holder-key-binding",
+  "version": "1.0.0",
+  "title": "Holder key binding",
+  "summary": "Extract one unambiguous Ed25519 holder key from a credential subject.",
+  "status": "published",
+  "maintainer": "Academic Wasteland / Concord",
+  "license": "https://www.apache.org/licenses/LICENSE-2.0",
+  "test_interface": "Python adapter(case) -> bool; True means accepted; exceptions are test errors, not successful rejection.",
+  "requirements": [
+    {
+      "id": "holder-key",
+      "level": "MUST",
+      "text": "Accept the legacy holderKey field.",
+      "expected_accept": true
+    },
+    {
+      "id": "public-key",
+      "level": "MUST",
+      "text": "Accept the publicKey field.",
+      "expected_accept": true
+    },
+    {
+      "id": "matching-aliases",
+      "level": "MUST",
+      "text": "Accept matching holderKey and publicKey values.",
+      "expected_accept": true
+    },
+    {
+      "id": "conflicting-aliases",
+      "level": "MUST",
+      "text": "Reject conflicting holder key aliases.",
+      "expected_accept": false
+    },
+    {
+      "id": "missing-key",
+      "level": "MUST",
+      "text": "Reject a missing holder key.",
+      "expected_accept": false
+    },
+    {
+      "id": "wrong-scheme",
+      "level": "MUST",
+      "text": "Reject a non-Ed25519 key scheme.",
+      "expected_accept": false
+    },
+    {
+      "id": "short-key",
+      "level": "MUST",
+      "text": "Reject a key that is not 32 bytes.",
+      "expected_accept": false
+    },
+    {
+      "id": "malformed-base64",
+      "level": "MUST",
+      "text": "Reject malformed base64url.",
+      "expected_accept": false
+    },
+    {
+      "id": "bad-subject",
+      "level": "MUST",
+      "text": "Reject a non-object credentialSubject.",
+      "expected_accept": false
+    }
+  ],
+  "not_tested": [
+    "Credential signature and issuer trust",
+    "Fresh proof of possession and challenge replay prevention",
+    "Manual qualification review and data access policy"
+  ],
+  "example": {
+    "credentialSubject": {
+      "id": "urn:participant:alice",
+      "holderKey": "ed25519:<32-byte-base64url>",
+      "publicKey": "ed25519:<same-key>"
+    }
+  },
+  "governance": "Towns opt in. No authority or data permission follows from a test pass. Published profile documents are immutable; normative changes require a new version. Implementation-specific exceptions remain failures, with an explanation in the report.",
+  "source": "https://github.com/academic-wasteland/wasteland-starter-pack/tree/main/wasteland/concord_profiles"
+}

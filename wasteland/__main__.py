@@ -53,6 +53,12 @@ def main():
     fair.add_argument("catalogue", type=Path)
     probe = sub.add_parser("fair-probe", help="explicitly test a bounded phenotype query or published file")
     probe.add_argument("id")
+    concord_city = sub.add_parser("concord-city", help="serve versioned standards and conformance evidence")
+    concord_city.add_argument("--bind", default="127.0.0.1")
+    concord_city.add_argument("--port", type=int, default=8398)
+    check = sub.add_parser("concord-check", help="run local conformance vectors with an explicitly selected adapter")
+    for field in ("profile", "adapter", "implementation", "version", "observer", "out"):
+        check.add_argument("--" + field, required=True)
     city = sub.add_parser("fair-city", help="run a read-only FAIR index and discovery resident")
     city.add_argument("--bind", default="127.0.0.1")
     city.add_argument("--port", type=int, default=8396)
@@ -123,6 +129,16 @@ def main():
             from .fair_probe import probe
 
             print(json.dumps(probe(Client(args.state), Index(Path(args.state) / "fair.sqlite"), args.id), indent=2))
+        elif args.command == "concord-city":
+            from .concord_city import serve as serve_concord
+            serve_concord(args.state, args.bind, args.port)
+        elif args.command == "concord-check":
+            from .concord import execute, save_report, summary
+            report = execute(args.profile, args.adapter, implementation=args.implementation, version=args.version, observer=args.observer)
+            path = save_report(args.out, report)
+            print(json.dumps({"report": str(path), **summary(report)}))
+            if summary(report)['outcome'] != 'pass':
+                parser.exit(1)
         elif args.command == "fair-city":
             from .fair_city import serve as serve_fair
 

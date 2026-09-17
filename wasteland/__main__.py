@@ -49,6 +49,14 @@ def main():
     )
     dashboard = sub.add_parser("dashboard", help="local town controls, mail and federation map")
     dashboard.add_argument("--port", type=int, default=8394)
+    fair = sub.add_parser("fair-publish", help="validate and publish approved FAIR metadata")
+    fair.add_argument("catalogue", type=Path)
+    probe = sub.add_parser("fair-probe", help="explicitly test a bounded phenotype query or published file")
+    probe.add_argument("id")
+    city = sub.add_parser("fair-city", help="run a read-only FAIR index and discovery resident")
+    city.add_argument("--bind", default="127.0.0.1")
+    city.add_argument("--port", type=int, default=8396)
+    city.add_argument("--interval", type=int, default=300)
     discover = sub.add_parser("discover")
     discover.add_argument("--hub", default=DEFAULT_HUB)
     work = sub.add_parser("work", help="run the local worker (outbound HTTPS only)")
@@ -98,6 +106,29 @@ def main():
             from .dashboard import serve as serve_dashboard
 
             serve_dashboard(args.state, args.port)
+        elif args.command == "fair-publish":
+            from .client import advertisement
+            from .fair import validate
+
+            client = Client(args.state)
+            records = validate(json.loads(args.catalogue.read_text()), client.name)
+            target = Path(args.state).resolve() / "fair-catalogue.jsonld"
+            target.write_text(args.catalogue.read_text())
+            client.config["fair_catalogue"] = str(target)
+            save_config(args.state, client.config)
+            client.call("/v1/heartbeat", advertisement(client.config))
+            print(f"Published {len(records)} descriptions. Restart the worker to reload its configuration.")
+        elif args.command == "fair-probe":
+            from .fair import Index
+            from .fair_probe import probe
+
+            print(json.dumps(probe(Client(args.state), Index(Path(args.state) / "fair.sqlite"), args.id), indent=2))
+        elif args.command == "fair-city":
+            from .fair_city import serve as serve_fair
+
+            if args.interval < 30:
+                raise ValueError("Harvest interval must be at least 30 seconds.")
+            serve_fair(args.state, args.bind, args.port, args.interval)
         elif args.command == "join":
             invitation = (
                 args.invite_file.read_text().strip()

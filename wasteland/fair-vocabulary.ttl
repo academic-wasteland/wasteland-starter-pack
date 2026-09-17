@@ -1,0 +1,39 @@
+@prefix wf: <https://leechuck.de/wasteland-fair/vocabulary#> .
+@prefix sio: <http://semanticscience.org/resource/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+
+wf: a owl:Ontology ; rdfs:label "Wasteland FAIR description profile" ;
+ rdfs:comment "Application vocabulary v1. Descriptions never grant permissions. The namespace resolves to this vocabulary through the public FAIRhaven service. Runtime import never fetches external ontologies." .
+wf:expectsInput a owl:ObjectProperty ; rdfs:label "expects input specification" ;
+ rdfs:domain dcat:DataService ; rdfs:range sio:SIO_000015 ;
+ rdfs:comment "Links an advertised service to a description of an expected input. It is not SIO has input, which describes an actual process participant." .
+wf:describesOutput a owl:ObjectProperty ; rdfs:label "describes output specification" ;
+ rdfs:range sio:SIO_000015 .
+wf:semanticType a owl:ObjectProperty ; rdfs:label "semantic type described" ;
+ rdfs:domain sio:SIO_000015 ;
+ rdfs:comment "Links a specification to the class IRI of the entity it describes. This is a catalogue-level reference, not an assertion that the specification is an instance of that class." .
+wf:access a owl:ObjectProperty ; rdfs:label "access instructions" .
+wf:constraints a owl:DatatypeProperty ; rdfs:label "input or output constraints" .
+wf:town a owl:DatatypeProperty ; rdfs:label "relay town address" .
+wf:resident a owl:DatatypeProperty ; rdfs:label "contact resident" .
+wf:operation a owl:DatatypeProperty ; rdfs:label "relay operation" .
+wf:requirements a owl:DatatypeProperty ; rdfs:label "access requirements" .
+wf:cost a owl:DatatypeProperty ; rdfs:label "declared cost" .
+wf:contact a owl:DatatypeProperty ; rdfs:label "contact instructions" .
+wf:documentation a owl:ObjectProperty ; rdfs:label "documentation" .
+wf:limitations a owl:DatatypeProperty ; rdfs:label "limitations" .
+wf:example a owl:DatatypeProperty ; rdfs:label "example request as RDF JSON" .
+wf:kind a owl:DatatypeProperty ; rdfs:label "catalogue record kind" .
+
+wf:PhenotypeProfile a owl:Class ; rdfs:subClassOf sio:SIO_000089 ;
+ rdfs:label "phenotype profile" ; rdfs:comment "A dataset of phenotype identifiers describing observed or queried phenotypic features." .
+wf:RankedGeneProfiles a owl:Class ; rdfs:subClassOf sio:SIO_000089 ;
+ rdfs:label "ranked gene profiles" ; rdfs:comment "A dataset ordering gene-associated profiles by a specified similarity measure." .
+wf:ApprovedExecutionRequest a owl:Class ; rdfs:subClassOf sio:SIO_000015 ;
+ rdfs:label "execution request with approval evidence" ; rdfs:comment "An information content entity carrying a task and purported approval evidence. Class membership does not establish validity of the approval." .
+wf:AlleleFrequencyTable a owl:Class ; rdfs:subClassOf sio:SIO_000089 ;
+ rdfs:label "allele frequency table" ; rdfs:comment "A dataset reporting allele counts or frequencies for specified variants and a cohort." .
+wf:TemporalKnowledgeGraphDocument a owl:Class ; rdfs:subClassOf sio:SIO_000015 ;
+ rdfs:label "temporal knowledge graph document" ; rdfs:comment "An information content entity documenting temporal knowledge graph definitions, examples or validation results." .

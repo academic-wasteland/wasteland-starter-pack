@@ -1,0 +1,16 @@
+[Unit]
+Description=FAIRhaven federated research catalogue and contact resident
+After=network-online.target wasteland-relay.service
+
+[Service]
+Type=simple
+WorkingDirectory=%h/wasteland-fair
+ExecStart=/usr/bin/python3 -m wasteland --state %h/.config/wasteland-fair fair-city --bind 127.0.0.1 --port 8396 --interval 300
+Restart=on-failure
+RestartSec=5
+UMask=0077
+NoNewPrivileges=yes
+PrivateTmp=yes
+
+[Install]
+WantedBy=default.target

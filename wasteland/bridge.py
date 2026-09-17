@@ -91,6 +91,9 @@ class Bridge:
     def handle(self, message, config):
         body = message["body"]
         operation = body.get("operation", "echo")
+        if operation == "fair-catalogue":
+            from .fair import published
+            return published(config, body)
         if operation == "phenotype-search":
             import subprocess
 

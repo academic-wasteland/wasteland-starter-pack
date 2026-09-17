@@ -286,3 +286,14 @@ and a per-process control token. Relay credentials never enter the browser. The
 network-facing hackathon demonstration is a separate service; do not expose this
 operator dashboard by changing its bind address. Use `--port` for multiple local
 town dashboards. All runtime assets ship in the package; no CDN is required.
+
+## FAIR services and resources
+
+Browse **https://leechuck.de/wasteland-fair/** or contact town `fairhaven`.
+Provider-owned JSON-LD descriptions use DCAT, SIO and a small scientific type
+vocabulary. The catalogue separates declarations, metadata checks and actual
+demonstrations; it never grants access or launches compute while indexing.
+
+Publish a description with `wasteland --state .town fair-publish catalogue.jsonld`.
+Run your own index with `wasteland --state .town fair-city`.
+See [the FAIR profile, examples, access model and deployment](docs/fair-services.md).

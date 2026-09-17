@@ -77,11 +77,11 @@ def save_config(directory, config):
 
 def advertisement(config):
     """Only public relay metadata; never transmit local handler/model/file settings."""
-    return {
-        "name": config["name"],
-        "display": config.get("display", config["name"]),
-        "capabilities": config.get("capabilities", ["echo", "describe"]),
-    }
+    capabilities = list(config.get("capabilities", ["echo", "describe"]))
+    if config.get("fair_catalogue") and "fair-catalogue" not in capabilities:
+        capabilities.append("fair-catalogue")
+    return {"name": config["name"], "display": config.get("display", config["name"]),
+            "capabilities": capabilities}
 
 
 def join(directory, base, town, invite, display=None):
@@ -147,6 +147,9 @@ class Client:
 def default_handler(message, config):
     body = message["body"]
     operation = body.get("operation", "echo")
+    if operation == "fair-catalogue":
+        from .fair import published
+        return published(config, body)
     if operation == "echo":
         return {
             "ok": True,

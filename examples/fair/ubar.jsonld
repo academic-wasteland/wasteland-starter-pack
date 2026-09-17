@@ -1,0 +1,164 @@
+{
+  "@context": {
+    "title": "http://purl.org/dc/terms/title",
+    "description": "http://purl.org/dc/terms/description",
+    "version": "http://www.w3.org/ns/dcat#version",
+    "keywords": "http://www.w3.org/ns/dcat#keyword",
+    "license": {
+      "@id": "http://purl.org/dc/terms/license",
+      "@type": "@id"
+    },
+    "subjects": {
+      "@id": "http://purl.org/dc/terms/subject",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "publisher": {
+      "@id": "http://purl.org/dc/terms/publisher",
+      "@type": "@id"
+    },
+    "inputs": {
+      "@id": "https://leechuck.de/wasteland-fair/vocabulary#expectsInput",
+      "@container": "@set"
+    },
+    "outputs": {
+      "@id": "https://leechuck.de/wasteland-fair/vocabulary#describesOutput",
+      "@container": "@set"
+    },
+    "semanticType": {
+      "@id": "https://leechuck.de/wasteland-fair/vocabulary#semanticType",
+      "@type": "@id"
+    },
+    "format": "http://purl.org/dc/terms/format",
+    "constraints": "https://leechuck.de/wasteland-fair/vocabulary#constraints",
+    "access": "https://leechuck.de/wasteland-fair/vocabulary#access",
+    "town": "https://leechuck.de/wasteland-fair/vocabulary#town",
+    "resident": "https://leechuck.de/wasteland-fair/vocabulary#resident",
+    "operation": "https://leechuck.de/wasteland-fair/vocabulary#operation",
+    "requirements": "https://leechuck.de/wasteland-fair/vocabulary#requirements",
+    "cost": "https://leechuck.de/wasteland-fair/vocabulary#cost",
+    "contact": "https://leechuck.de/wasteland-fair/vocabulary#contact",
+    "documentation": {
+      "@id": "https://leechuck.de/wasteland-fair/vocabulary#documentation",
+      "@type": "@id"
+    },
+    "provenance": "http://purl.org/dc/terms/provenance",
+    "limitations": "https://leechuck.de/wasteland-fair/vocabulary#limitations",
+    "example": {
+      "@id": "https://leechuck.de/wasteland-fair/vocabulary#example",
+      "@type": "@json"
+    },
+    "kind": "https://leechuck.de/wasteland-fair/vocabulary#kind"
+  },
+  "@graph": [
+    {
+      "@id": "urn:wasteland:fair:ubar:indigena",
+      "@type": "http://www.w3.org/ns/dcat#DataService",
+      "kind": "service",
+      "publisher": "urn:wasteland:town:ubar",
+      "title": "INDIGENA phenotype similarity search",
+      "description": "Rank mouse gene phenotype profiles against HPO, MP or UPHENO terms using a locally trained INDIGENA TransD model. Supports pangenome interpretation research; does not analyze pangenome variants itself.",
+      "version": "sha256:1929907252f233deaae07cb14fe1d77d09342ec0f11d66e910a6f2e94e2f1ff4",
+      "keywords": [
+        "phenotype",
+        "phenotypes",
+        "HPO",
+        "MP",
+        "MONDO",
+        "gene prioritization",
+        "pangenome interpretation",
+        "INDIGENA"
+      ],
+      "subjects": [
+        "http://purl.obolibrary.org/obo/hp.owl",
+        "http://purl.obolibrary.org/obo/upheno.owl",
+        "http://purl.obolibrary.org/obo/NCBITaxon_10090"
+      ],
+      "inputs": [
+        {
+          "@type": "http://semanticscience.org/resource/SIO_000015",
+          "title": "Phenotype profile",
+          "semanticType": "https://leechuck.de/wasteland-fair/vocabulary#PhenotypeProfile",
+          "format": "application/json",
+          "constraints": "phenotypes: 1\u201330 HP, MP or UPHENO identifiers; limit: 1\u201350; method: indigena."
+        }
+      ],
+      "outputs": [
+        {
+          "@type": "http://semanticscience.org/resource/SIO_000015",
+          "title": "Ranked mouse gene profiles",
+          "semanticType": "https://leechuck.de/wasteland-fair/vocabulary#RankedGeneProfiles",
+          "format": "application/json",
+          "constraints": "MGI identifiers, similarity scores, query and model provenance. Scores are not disease probabilities."
+        }
+      ],
+      "access": {
+        "town": "ubar",
+        "resident": "phenomancer",
+        "operation": "phenotype-search",
+        "requirements": "Registered relay town. Public bounded research query; no patient identifiers should be sent. Clinical or controlled-data access is not granted.",
+        "cost": "No automated billing configured; contact the operator for sustained use.",
+        "contact": "Send operation message to ubar with resident phenomancer."
+      },
+      "documentation": "https://github.com/academic-wasteland/pangenome-town/blob/main/docs/literature-and-phenotypes.md",
+      "provenance": "Trained locally from INDIGENA commit 4fac38e8182231ffe07f80c66a2502ff70afb17b; Graph 4 inductive fold 0, seed 0, 400 dimensions, selected epoch 90, validation mean rank 134.7093. This is one training fold, not a clinical benchmark.",
+      "limitations": "Mouse candidate genes, not a clinical diagnosis or a human variant interpretation. MONDO is relevant context but MONDO IDs are not accepted phenotype query inputs. No output reuse license has yet been declared.",
+      "example": {
+        "operation": "phenotype-search",
+        "phenotypes": [
+          "HP:0001250",
+          "HP:0001249"
+        ],
+        "limit": 5,
+        "method": "indigena"
+      }
+    },
+    {
+      "@id": "urn:wasteland:fair:ubar:q-temporal-kg",
+      "@type": "http://semanticscience.org/resource/SIO_000015",
+      "kind": "resource",
+      "publisher": "urn:wasteland:town:ubar",
+      "title": "Q: temporal knowledge graph documents and results",
+      "description": "Selected formal definitions, reviews and validation results for temporal knowledge graphs, served by Ubar and explained by resident Q. Includes OWL Functional Syntax examples and documents about time and inference.",
+      "version": "collection-2026-09-17",
+      "keywords": [
+        "temporal",
+        "knowledge graph",
+        "time",
+        "ontology",
+        "Q",
+        "OWL",
+        "documents"
+      ],
+      "subjects": [
+        "http://www.w3.org/2006/time",
+        "http://www.w3.org/2002/07/owl"
+      ],
+      "outputs": [
+        {
+          "@type": "http://semanticscience.org/resource/SIO_000015",
+          "title": "Documents and ontology examples",
+          "semanticType": "https://leechuck.de/wasteland-fair/vocabulary#TemporalKnowledgeGraphDocument",
+          "format": "application/octet-stream",
+          "constraints": "Selected Markdown, PDF, LaTeX, OWL Functional Syntax and validation text; request individual resource IDs."
+        }
+      ],
+      "access": {
+        "town": "ubar",
+        "resident": "q",
+        "operation": "resource",
+        "requirements": "Registered relay town; only explicitly published files may be retrieved. A listed file does not imply permission to redistribute it.",
+        "cost": "No automated billing configured; contact Q for sustained use.",
+        "contact": "Send operation message to ubar with resident q."
+      },
+      "documentation": "https://github.com/academic-wasteland/pangenome-town/blob/main/docs/literature-and-phenotypes.md",
+      "provenance": "Operator-selected local temporal-kg collection. Each retrieved file has its own SHA-256 digest. Source papers retain their original copyright; the collection does not grant rights over them.",
+      "limitations": "This catalogue publishes metadata only. Papers outside the explicit resource allowlist are not served. Collection date is not a version of every document. Resource-specific licenses are not yet declared.",
+      "example": {
+        "operation": "resource",
+        "id": "ca1ce20329fcf343172ab3c8",
+        "offset": 0
+      }
+    }
+  ]
+}

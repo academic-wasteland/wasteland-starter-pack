@@ -49,6 +49,9 @@ def handle(message, config):
     operation = body.get("operation", "echo")
     if sender in config["trust"].get("blocked", []):
         return {"ok": False, "error": "town is blocked by the local operator"}
+    if operation == "fair-catalogue":
+        from .fair import published as fair_published
+        return fair_published(config, body)
     if operation == "describe":
         return {
             "ok": True,

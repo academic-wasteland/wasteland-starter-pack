@@ -1,0 +1,107 @@
+{
+  "@context": {
+    "title": "http://purl.org/dc/terms/title",
+    "description": "http://purl.org/dc/terms/description",
+    "version": "http://www.w3.org/ns/dcat#version",
+    "keywords": "http://www.w3.org/ns/dcat#keyword",
+    "license": {
+      "@id": "http://purl.org/dc/terms/license",
+      "@type": "@id"
+    },
+    "subjects": {
+      "@id": "http://purl.org/dc/terms/subject",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "publisher": {
+      "@id": "http://purl.org/dc/terms/publisher",
+      "@type": "@id"
+    },
+    "inputs": {
+      "@id": "https://leechuck.de/wasteland-fair/vocabulary#expectsInput",
+      "@container": "@set"
+    },
+    "outputs": {
+      "@id": "https://leechuck.de/wasteland-fair/vocabulary#describesOutput",
+      "@container": "@set"
+    },
+    "semanticType": {
+      "@id": "https://leechuck.de/wasteland-fair/vocabulary#semanticType",
+      "@type": "@id"
+    },
+    "format": "http://purl.org/dc/terms/format",
+    "constraints": "https://leechuck.de/wasteland-fair/vocabulary#constraints",
+    "access": "https://leechuck.de/wasteland-fair/vocabulary#access",
+    "town": "https://leechuck.de/wasteland-fair/vocabulary#town",
+    "resident": "https://leechuck.de/wasteland-fair/vocabulary#resident",
+    "operation": "https://leechuck.de/wasteland-fair/vocabulary#operation",
+    "requirements": "https://leechuck.de/wasteland-fair/vocabulary#requirements",
+    "cost": "https://leechuck.de/wasteland-fair/vocabulary#cost",
+    "contact": "https://leechuck.de/wasteland-fair/vocabulary#contact",
+    "documentation": {
+      "@id": "https://leechuck.de/wasteland-fair/vocabulary#documentation",
+      "@type": "@id"
+    },
+    "provenance": "http://purl.org/dc/terms/provenance",
+    "limitations": "https://leechuck.de/wasteland-fair/vocabulary#limitations",
+    "example": {
+      "@id": "https://leechuck.de/wasteland-fair/vocabulary#example",
+      "@type": "@json"
+    },
+    "kind": "https://leechuck.de/wasteland-fair/vocabulary#kind"
+  },
+  "@graph": [
+    {
+      "@id": "urn:wasteland:fair:yamatai:ddbj-cohort-compute",
+      "@type": "http://www.w3.org/ns/dcat#DataService",
+      "kind": "service",
+      "publisher": "urn:wasteland:town:yamatai",
+      "title": "Yamatai DDBJ cohort compute",
+      "description": "Run approved cohort allele-frequency analyses on the DDBJ cluster. Yamatai controls Slurm submission; dataset custodians independently approve use of the Saudi or Japanese JaSaPaGe logical cohort.",
+      "version": "wasteland-execution/1",
+      "keywords": [
+        "pangenome",
+        "pangenomes",
+        "cohort",
+        "Saudi",
+        "Japanese",
+        "compute",
+        "allele frequency",
+        "DDBJ",
+        "Slurm"
+      ],
+      "subjects": [
+        "http://purl.obolibrary.org/obo/NCBITaxon_9606"
+      ],
+      "inputs": [
+        {
+          "@type": "http://semanticscience.org/resource/SIO_000015",
+          "title": "Approved execution task and signed grants",
+          "semanticType": "https://leechuck.de/wasteland-fair/vocabulary#ApprovedExecutionRequest",
+          "format": "application/json",
+          "constraints": "wasteland-execution/1; dataset manifest digests; requester identity; bounded GRCh38 region; exact-task custodian grants; approved workflow."
+        }
+      ],
+      "outputs": [
+        {
+          "@type": "http://semanticscience.org/resource/SIO_000015",
+          "title": "Aggregate allele counts and provenance",
+          "semanticType": "https://leechuck.de/wasteland-fair/vocabulary#AlleleFrequencyTable",
+          "format": "text/tab-separated-values",
+          "constraints": "Allele counts/frequencies and execution provenance. Individual genotype release requires a distinct authorized task."
+        }
+      ],
+      "access": {
+        "town": "yamatai",
+        "resident": "bob",
+        "operation": "delegated-compute",
+        "requirements": "Registered requester town, pinned custodian keys, valid task-bound dataset grants, supported workflow and available Slurm route. Restricted RCP workflows separately require their configured semantic and policy gates; a FAIR listing bypasses neither. Contact Bob to prepare the task and obtain required approvals.",
+        "cost": "No automated billing configured. Cluster capacity and allocation apply; agree sustained use with the operator.",
+        "contact": "Send operation message to yamatai with resident bob."
+      },
+      "documentation": "https://github.com/academic-wasteland/pangenome-town/blob/main/docs/dataset-custody.md",
+      "provenance": "pangenome-town bounded execution templates and signed DatasetExecutionGrant protocol; bcftools on DDBJ through Yamatai Slurm. Cohort identity is bound to the custodian dataset manifest.",
+      "limitations": "Queue time and cluster availability vary. No current end-to-end execution evidence is attached to this description. Complete task and grant examples depend on the requester and current manifest; request them from Bob. Data/output licenses require confirmation."
+    }
+  ]
+}

@@ -160,6 +160,71 @@
         "id": "ca1ce20329fcf343172ab3c8",
         "offset": 0
       }
+    },
+    {
+      "@id": "urn:wasteland:fair:ubar:variant-interpretation",
+      "@type": "http://www.w3.org/ns/dcat#DataService",
+      "kind": "service",
+      "publisher": "urn:wasteland:town:ubar",
+      "title": "Themis: evidence-traceable ACMG variant report",
+      "description": "Re-evaluate a pinned ClinGen FBN1 expert curation and generate a PDF from one allele and phenotype terms. Initial evidence covers GRCh38 15:48421680 T>C, FBN1 c.7577A>G. Other alleles receive Not classified; this is not a general clinical classifier.",
+      "version": "sha256:5e8e304a1b0a2a2ce5795440fa1abf81fffa155cd7e194ee6235f025e3a8ec5d",
+      "keywords": [
+        "variant interpretation",
+        "ACMG",
+        "REVEL",
+        "privacy",
+        "rare disease"
+      ],
+      "subjects": [
+        "http://purl.obolibrary.org/obo/MONDO_0007947"
+      ],
+      "inputs": [
+        {
+          "@type": "http://semanticscience.org/resource/SIO_000015",
+          "title": "Bounded research input",
+          "semanticType": "http://semanticscience.org/resource/SIO_000015",
+          "format": "application/json",
+          "constraints": "One variant object: assembly GRCh38, chrom, pos, ref, alt; 1\u201330 resolved HP/MP phenotype identifiers; resident themis. VCF, genotype and patient metadata forbidden."
+        }
+      ],
+      "outputs": [
+        {
+          "@type": "http://semanticscience.org/resource/SIO_000015",
+          "title": "Research result and evidence",
+          "semanticType": "http://semanticscience.org/resource/SIO_000015",
+          "format": "application/json",
+          "constraints": "ACMG criteria with strengths, sources and exclusions; classification; PDF base64 and SHA-256. Only the pinned expert allele has installed evidence."
+        }
+      ],
+      "access": {
+        "town": "ubar",
+        "resident": "themis",
+        "operation": "variant-interpretation",
+        "requirements": "Registered relay town. Bounded research demonstration; no clinical sign-off. Never send a VCF or patient identifiers.",
+        "cost": "No charge for this bounded demonstration",
+        "contact": "ubar/themis"
+      },
+      "documentation": "https://github.com/academic-wasteland/pangenome-town/blob/main/docs/private-variant-demo.md",
+      "provenance": "Academic Wasteland synthetic patient. Target evidence: ClinGen FBN1 VCEP 2023-06-15, curation f57714a2-598c-4e48-a07e-6858c037050e version 1.0.0; background annotations synthetic. REVEL 0.821; historical gnomAD absence.",
+      "limitations": "Research demonstration selected to illustrate recovery of a known allele. Fixed synthetic VCF. Not clinical validation; annotation data are pinned, not live database queries. Own metadata and generated report prose CC BY 4.0; upstream evidence retains its own terms.",
+      "example": {
+        "operation": "variant-interpretation",
+        "resident": "themis",
+        "variant": {
+          "assembly": "GRCh38",
+          "chrom": "15",
+          "pos": 48421680,
+          "ref": "T",
+          "alt": "C"
+        },
+        "phenotypes": [
+          "HP:0001083",
+          "HP:0001166",
+          "HP:0002616"
+        ]
+      },
+      "license": "https://creativecommons.org/licenses/by/4.0/"
     }
   ]
 }

@@ -316,3 +316,13 @@ Real qualifications require manual evidence review; towns choose their own trust
 [Concord](https://leechuck.de/wasteland-concord/) publishes opt-in versioned
 profiles and inspectable test evidence, alongside FAIRhaven's service catalogue.
 [Run conformance checks or host a standards town](docs/concord.md).
+
+
+Ubar now advertises **Themis** (`resident:themis`, `variant-interpretation`):
+one GRCh38 allele plus HPO/MP identifiers produces an evidence-traceable ACMG
+assessment and PDF. The initial evidence package covers FBN1 c.7577A>G; other
+alleles are explicitly not classified. It accepts no VCF or patient metadata.
+The [live private-variant demo](https://leechuck.de/wasteland-live/demo/phenotypes)
+keeps a synthetic VCF at Yamatai, reranks locally with frequency and REVEL,
+and sends only the selected allele and phenotypes to Themis.
+[Scope, payloads, evidence and setup](https://github.com/academic-wasteland/pangenome-town/blob/main/docs/private-variant-demo.md).

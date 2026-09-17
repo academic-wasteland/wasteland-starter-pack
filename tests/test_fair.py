@@ -31,7 +31,7 @@ class ProfileTests(unittest.TestCase):
         self.tmp.cleanup()
 
     def test_provider_scope_context_and_secret_fields(self):
-        self.assertEqual(len(validate(self.doc, 'ubar')), 2)
+        self.assertEqual(len(validate(self.doc, 'ubar')), 3)
         for mutate in (
             lambda d: d.update({'@context': 'https://attacker.invalid/context'}),
             lambda d: d['@graph'][0].update(publisher='urn:wasteland:town:yamatai'),
@@ -153,8 +153,8 @@ class FederationFairTests(unittest.TestCase):
 
     def test_authenticated_paginated_harvest_and_public_metadata(self):
         outcomes = harvest(Client(self.root / 'alpha'), self.index, timeout=5)
-        self.assertEqual(outcomes, [{'town': 'bravo', 'records': 2, 'ok': True}])
-        self.assertEqual(len(self.index.search()), 2)
+        self.assertEqual(outcomes, [{'town': 'bravo', 'records': 3, 'ok': True}])
+        self.assertEqual(len(self.index.search()), 3)
         self.assertNotIn(Client(self.root / 'bravo').config['token'], json.dumps(self.index.search()))
 
     def test_tampered_revision_keeps_previous_catalogue(self):
@@ -172,4 +172,4 @@ class FederationFairTests(unittest.TestCase):
                          'id': 'rid', 'body': {'ok': True, 'catalogue': self.doc, 'revision': 'bad', 'next_offset': None}}]
         result = harvest(Fake(), self.index)
         self.assertFalse(result[0]['ok'])
-        self.assertEqual(len(self.index.search()), 2)
+        self.assertEqual(len(self.index.search()), 3)

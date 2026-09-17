@@ -101,6 +101,12 @@ class Bridge:
         if operation == "fair-catalogue":
             from .fair import published
             return published(config, body)
+        if operation == "variant-interpretation":
+            try:
+                from pangenome_town.variant_interpretation import interpret
+                return interpret(self.town, body)
+            except (ValueError, OSError, KeyError) as error:
+                return {"ok": False, "error": str(error)}
         if operation == "phenotype-search":
             import subprocess
 
@@ -299,10 +305,12 @@ def run(directory, town_config):
     config["capabilities"].append("resident:contact")
     if bridge.town.kind == "authority":
         config["capabilities"].extend(["resident:irb", "resident:dac"])
-    config["capabilities"].extend("resident:" + name for name in ("q", "bloodninja", "bloodninja_scout", "phenomancer", "sam", "bob")
+    config["capabilities"].extend("resident:" + name for name in ("q", "bloodninja", "bloodninja_scout", "phenomancer", "themis", "sam", "bob")
                                  if (bridge.town.city_root / "agents" / name / "agent.toml").is_file())
     if bridge.town.extra.get("phenotype_search", {}).get("enabled"):
         config["capabilities"].append("phenotype-search")
+    if bridge.town.extra.get("variant_interpretation", {}).get("enabled"):
+        config["capabilities"].append("variant-interpretation")
     save_config(directory, config)
     Worker(
         directory,

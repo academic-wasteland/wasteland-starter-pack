@@ -225,6 +225,68 @@
         ]
       },
       "license": "https://creativecommons.org/licenses/by/4.0/"
+    },
+    {
+      "@id": "urn:wasteland:fair:ubar:research-intake",
+      "@type": "http://www.w3.org/ns/dcat#DataService",
+      "kind": "service",
+      "publisher": "urn:wasteland:town:ubar",
+      "title": "Contact: phenotype research intake and delegation",
+      "description": "Receive a human-readable synthetic research question with phenotype labels and workflow settings; reply with explanatory text and a bounded service delegation plan. The plan is selected from structured fields, not unrestricted natural-language interpretation.",
+      "version": "intake-v1",
+      "keywords": [
+        "research intake",
+        "delegation",
+        "phenotypes",
+        "private VCF"
+      ],
+      "subjects": [
+        "http://purl.obolibrary.org/obo/hp.owl",
+        "http://purl.obolibrary.org/obo/upheno.owl",
+        "http://purl.obolibrary.org/obo/NCBITaxon_10090"
+      ],
+      "inputs": [
+        {
+          "@type": "http://semanticscience.org/resource/SIO_000015",
+          "title": "Human question with structured phenotype payload",
+          "semanticType": "http://semanticscience.org/resource/SIO_000015",
+          "format": "application/json",
+          "constraints": "text: 1\u20131200 characters; resident: contact; phenotypes: 1\u201330 labels or IDs; private_case: boolean. No VCF uploads or additional patient fields. workflow: phenotype-research."
+        }
+      ],
+      "outputs": [
+        {
+          "@type": "http://semanticscience.org/resource/SIO_000015",
+          "title": "Text reply and service delegation plan",
+          "semanticType": "http://semanticscience.org/resource/SIO_000015",
+          "format": "application/json",
+          "constraints": "text plus ordered plan entries containing town, resident, operation and FAIR record where applicable; local VCF analysis remains at Yamatai."
+        }
+      ],
+      "access": {
+        "town": "ubar",
+        "resident": "contact",
+        "operation": "message",
+        "requirements": "Registered town identity; human demo requests are relayed via Yamatai. No patient identifiers or genomic files.",
+        "cost": "No automated billing configured; contact the operator for sustained use.",
+        "contact": "ubar/contact"
+      },
+      "documentation": "https://github.com/academic-wasteland/pangenome-town/blob/main/docs/private-variant-demo.md",
+      "provenance": "Academic Wasteland deterministic contact service; routes to Phenomancer, Yamatai local prioritization and Themis.",
+      "limitations": "Synthetic research workflow only. No VCF or patient identifiers. A delegation is not a permission grant or clinical recommendation.",
+      "example": {
+        "operation": "message",
+        "resident": "contact",
+        "text": "Please help prioritize genes for a synthetic patient. Keep the VCF at Yamatai.",
+        "phenotypes": [
+          "HPO: Ectopia lentis",
+          "HPO: Arachnodactyly",
+          "HPO: Aortic root aneurysm"
+        ],
+        "private_case": true,
+        "workflow": "phenotype-research"
+      },
+      "license": "https://creativecommons.org/licenses/by/4.0/"
     }
   ]
 }

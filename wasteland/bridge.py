@@ -101,6 +101,12 @@ class Bridge:
         if operation == "fair-catalogue":
             from .fair import published
             return published(config, body)
+        if operation == "message" and body.get("resident") == "contact" and body.get("workflow") == "phenotype-research":
+            from pangenome_town.research_intake import intake
+            try:
+                return intake(self.town, body)
+            except ValueError as error:
+                return {"ok": False, "text": str(error), "error": str(error)}
         if operation == "variant-interpretation":
             try:
                 from pangenome_town.variant_interpretation import interpret

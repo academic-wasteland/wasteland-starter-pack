@@ -121,3 +121,31 @@ Tests in `pangenome-town/tests/test_relay_credentials.py` exercise real HTTP rel
 transport, key ownership, cross-town isolation, manual review, signatures,
 staleness, replay and revocation between execution and release. Starter tests
 independently exercise the wire-format verifier and fail-closed status checks.
+
+## Zerzura interoperability regression checks
+
+Status requests accept either `id` (credential or status IRI), `credential`, or
+`status_id`. If multiple fields identify a known credential, they must agree;
+conflicting credential/status IDs or an incorrect explicit issuer are refused.
+The signed response still contains both credential and status IDs. This supports
+Zerzura's original request shape as well as its updated `id` request.
+
+Both the relay town directory and Camelot's `describe` operation advertise the
+credential operations. Discover them without guessing operation names.
+
+The pangenome-town CI checks out the independent implementation at
+`micheldumontier/wasteland-starter-pack@4c03774a0a9ed701d30648f94e56c084ca95d08a`
+and runs its unchanged signature, holder-binding and status verifiers against
+our registrar. To reproduce from a pangenome-town checkout:
+
+```sh
+git clone https://github.com/micheldumontier/wasteland-starter-pack /tmp/zerzura-interop
+git -C /tmp/zerzura-interop checkout 4c03774a0a9ed701d30648f94e56c084ca95d08a
+ZERZURA_SOURCE=/tmp/zerzura-interop .venv/bin/python -m pytest -q tests/test_relay_credentials.py
+```
+
+Coverage includes holder signatures, single-use challenges, changed queries,
+wrong sending town, conflicting holder-key aliases, signed active status,
+stale/tampered status and revocation. This is independent-code interoperability;
+it does not claim to have exercised Zerzura's remotely deployed aggregate-data
+service or accepted its data-use undertaking on a participant's behalf.

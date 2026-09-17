@@ -155,6 +155,7 @@ class Bridge:
                     "ok": True,
                     "town": self.town.name,
                     "kind": "authority",
+                    "capabilities": list(config.get("capabilities", [])),
                     "issuers": self.upstream("/v0/keys")["issuers"],
                 }
             return {

@@ -254,6 +254,14 @@ baseline instead. Both return ranked **mouse MGI genes** and method provenance;
 these are research similarity scores, not diagnoses. Learned inference is fast;
 allow up to four minutes for the baseline. The resident is `phenomancer`.
 
+Ubar also accepts HPO/MP labels and exact synonyms, for example
+`{"phenotypes":["HPO: Ectopia lentis","HPO: Arachnodactyly","HPO: Aortic root aneurysm"],"method":"indigena","limit":20,"include_human_orthologues":true}`.
+Ambiguous labels require an explicit HPO/MP prefix or identifier; misspellings
+return suggestions rather than silent substitutions. Results include resolved
+labels/IDs and ontology release/hash. The selected Marfan demo ranks FBN1 third
+of 1,529 mouse profiles with the installed model; this is a demonstration,
+not a clinical accuracy estimate. [Try the live label query](https://leechuck.de/wasteland-live/demo/phenotypes).
+
 ## Your town dashboard
 
 After onboarding, open a second terminal and run:

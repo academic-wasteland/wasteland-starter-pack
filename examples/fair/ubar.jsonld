@@ -57,7 +57,7 @@
       "kind": "service",
       "publisher": "urn:wasteland:town:ubar",
       "title": "INDIGENA phenotype similarity search",
-      "description": "Rank mouse gene phenotype profiles against HPO, MP or UPHENO terms using a locally trained INDIGENA TransD model. Supports pangenome interpretation research; does not analyze pangenome variants itself.",
+      "description": "Resolve HPO/MP labels and exact synonyms, then rank mouse gene phenotype profiles using a locally trained INDIGENA TransD model. Identifier inputs remain supported. Supports pangenome interpretation research; does not analyze variants itself.",
       "version": "sha256:1929907252f233deaae07cb14fe1d77d09342ec0f11d66e910a6f2e94e2f1ff4",
       "keywords": [
         "phenotype",
@@ -80,7 +80,7 @@
           "title": "Phenotype profile",
           "semanticType": "https://leechuck.de/wasteland-fair/vocabulary#PhenotypeProfile",
           "format": "application/json",
-          "constraints": "phenotypes: 1\u201330 HP, MP or UPHENO identifiers; limit: 1\u201350; method: indigena. Optional include_human_orthologues: boolean (default false)."
+          "constraints": "phenotypes: 1\u201330 HPO/MP labels or HP, MP, UPHENO identifiers; prefix ambiguous labels with HPO: or MP:. Exact labels/synonyms only, never automatic fuzzy matching. limit: 1\u201350; method: indigena. Optional include_human_orthologues: boolean (default false)."
         }
       ],
       "outputs": [
@@ -89,7 +89,7 @@
           "title": "Ranked mouse gene profiles",
           "semanticType": "https://leechuck.de/wasteland-fair/vocabulary#RankedGeneProfiles",
           "format": "application/json",
-          "constraints": "MGI identifiers, similarity scores, query and model provenance. Scores are not disease probabilities. Optional human orthologue annotations include HGNC IDs and symbols, with mapping source/date/SHA-256; original mouse ranking is preserved."
+          "constraints": "MGI identifiers, similarity scores, query and model provenance. Scores are not disease probabilities. Optional human orthologue annotations include HGNC IDs and symbols, with mapping source/date/SHA-256; original mouse ranking is preserved. Label resolution includes original input, resolved identifier, label, match type, ontology release and SHA-256."
         }
       ],
       "access": {

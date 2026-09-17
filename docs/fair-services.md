@@ -178,3 +178,10 @@ in [deploy](../deploy/wasteland-fair-city.service).
 spoofing, remote-context rejection, metadata privacy, malformed-update rollback,
 offline retention, withdrawals, revision history, semantic filtering, evidence
 version binding, and refusal to execute compute through FAIR probes.
+
+The public [phenotype-to-gene demo](https://leechuck.de/wasteland-live/demo/phenotypes)
+uses Ubar's listed INDIGENA service in a real authenticated relay call and checks
+the response's model hash against the harvested description. It includes the
+service snapshot in downloadable evidence and annotates mouse-ranked profiles
+with MGI human orthologues. Demo-authored metadata and generated tables use
+CC BY 4.0, attribution Academic Wasteland; upstream rights remain separate.

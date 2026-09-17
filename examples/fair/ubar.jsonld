@@ -80,7 +80,7 @@
           "title": "Phenotype profile",
           "semanticType": "https://leechuck.de/wasteland-fair/vocabulary#PhenotypeProfile",
           "format": "application/json",
-          "constraints": "phenotypes: 1\u201330 HP, MP or UPHENO identifiers; limit: 1\u201350; method: indigena."
+          "constraints": "phenotypes: 1\u201330 HP, MP or UPHENO identifiers; limit: 1\u201350; method: indigena. Optional include_human_orthologues: boolean (default false)."
         }
       ],
       "outputs": [
@@ -89,7 +89,7 @@
           "title": "Ranked mouse gene profiles",
           "semanticType": "https://leechuck.de/wasteland-fair/vocabulary#RankedGeneProfiles",
           "format": "application/json",
-          "constraints": "MGI identifiers, similarity scores, query and model provenance. Scores are not disease probabilities."
+          "constraints": "MGI identifiers, similarity scores, query and model provenance. Scores are not disease probabilities. Optional human orthologue annotations include HGNC IDs and symbols, with mapping source/date/SHA-256; original mouse ranking is preserved."
         }
       ],
       "access": {
@@ -101,8 +101,8 @@
         "contact": "Send operation message to ubar with resident phenomancer."
       },
       "documentation": "https://github.com/academic-wasteland/pangenome-town/blob/main/docs/literature-and-phenotypes.md",
-      "provenance": "Trained locally from INDIGENA commit 4fac38e8182231ffe07f80c66a2502ff70afb17b; Graph 4 inductive fold 0, seed 0, 400 dimensions, selected epoch 90, validation mean rank 134.7093. This is one training fold, not a clinical benchmark.",
-      "limitations": "Mouse candidate genes, not a clinical diagnosis or a human variant interpretation. MONDO is relevant context but MONDO IDs are not accepted phenotype query inputs. No output reuse license has yet been declared.",
+      "provenance": "Trained locally from INDIGENA commit 4fac38e8182231ffe07f80c66a2502ff70afb17b; Graph 4 inductive fold 0, seed 0, 400 dimensions, selected epoch 90, validation mean rank 134.7093. This is one training fold, not a clinical benchmark. Human annotations use the MGI HOM_ProteinCoding.rpt report; exact retrieval date and SHA-256 accompany each annotated result. Conflicting human mappings are excluded.",
+      "limitations": "Mouse-model candidates with optional human orthologue annotations, not a validated human diagnostic ranking. MONDO IDs are not accepted query inputs. CC BY 4.0 applies to this project-authored service metadata and demo-generated result tables, credit Academic Wasteland; upstream model and source data retain their own terms and are not relicensed.",
       "example": {
         "operation": "phenotype-search",
         "phenotypes": [
@@ -111,7 +111,8 @@
         ],
         "limit": 5,
         "method": "indigena"
-      }
+      },
+      "license": "https://creativecommons.org/licenses/by/4.0/"
     },
     {
       "@id": "urn:wasteland:fair:ubar:q-temporal-kg",

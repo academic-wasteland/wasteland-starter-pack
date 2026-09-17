@@ -45,6 +45,7 @@ class ProfileTests(unittest.TestCase):
                 validate(invalid, 'ubar')
 
     def test_search_structural_checks_and_honest_gaps(self):
+        self.doc['@graph'][0].pop('license', None)
         self.index.ingest('ubar', self.doc)
         self.assertEqual(len(self.index.search('HPO')), 1)
         self.assertEqual(len(self.index.search(semantic_type='http://semanticscience.org/resource/SIO_000089')), 1)

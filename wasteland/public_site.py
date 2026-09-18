@@ -6,10 +6,11 @@ def pages():
     source = Path(__file__).parent
     discovery = (source / 'fair_city.html').read_text()
     discovery = discovery.replace('<body>', '<body data-registry="/wasteland-fair/">')
-    discovery = discovery.replace('<header>', '<header><nav aria-label="Main navigation" style="display:flex;flex-wrap:wrap;gap:20px;margin-bottom:22px"><a href="./">Observatory</a><a href="discovery.html" aria-current="page">Services &amp; resources</a><a href="./#demos">Demos</a><a href="./#join">Build a town</a></nav>', 1)
+    discovery = discovery.replace('<header>', '<header><nav aria-label="Main navigation" style="display:flex;flex-wrap:wrap;gap:20px;margin-bottom:22px"><a href="./">Observatory</a><a href="discovery.html" aria-current="page">Services &amp; resources</a><a href="./#demos">Demos</a><a href="./#join">Build a town</a><a href="guide.html">Guide</a></nav>', 1)
     discovery = discovery.replace('<h1>FAIRhaven</h1>', '<h1>Services &amp; resources</h1>')
     discovery = discovery.replace('href="catalogue.jsonld"', 'href="/wasteland-fair/catalogue.jsonld"')
-    return {'index.html': (source / 'observatory.html').read_text(), 'discovery.html': discovery}
+    return {'index.html': (source / 'observatory.html').read_text(), 'discovery.html': discovery,
+            'guide.html': (source / 'guide.html').read_text()}
 
 
 def write(output):

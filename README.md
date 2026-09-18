@@ -1,5 +1,8 @@
 # Wasteland starter pack
 
+**[Common actions guide](https://leechuck.de/academic-wasteland/guide.html)** — find services, contact agents, follow messages, build a town, publish resources and manage trust.
+
+
 Build a town on your laptop, give it a capability, and exchange work with other
 research towns. Your repository can live in the
 [Academic Wasteland organisation](https://github.com/academic-wasteland), your own

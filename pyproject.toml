@@ -21,4 +21,4 @@ wasteland = "wasteland.__main__:main"
 include = ["wasteland*"]
 
 [tool.setuptools.package-data]
-wasteland = ["observatory.html", "builder.html", "dashboard.html", "conversations.html", "fair_city.html", "fair-vocabulary.ttl", "concord_city.html", "concord_profiles/*.json", "concord_profiles/*.sha256"]
+wasteland = ["guide.html", "observatory.html", "builder.html", "dashboard.html", "conversations.html", "fair_city.html", "fair-vocabulary.ttl", "concord_city.html", "concord_profiles/*.json", "concord_profiles/*.sha256"]

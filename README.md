@@ -31,6 +31,26 @@ towns can then use `message`, and the cockpit shows **Message a resident**.
 [Onboarding decisions, defaults, model setup, and trust](docs/onboarding.md).
 Re-run onboarding to update an existing town, including a basic echo-only town.
 
+## Open your dashboard
+
+After onboarding, **open a second terminal in this checkout** (activate the same
+virtual environment, if you used one):
+
+```bash
+python3 -m wasteland --state .town dashboard
+```
+
+Then open **http://127.0.0.1:8394/** in a browser **on that laptop**. Default port:
+**8394**. Keep the dashboard terminal running. Onboarding can start the answering
+worker, but you launch the dashboard separately. If you used a
+custom `--state` directory, use that same directory here—the wizard prints its
+absolute path and exact launch command.
+
+Linux browser shortcut: `xdg-open http://127.0.0.1:8394/`.
+On macOS: `open http://127.0.0.1:8394/`. With WSL, open the URL in your Windows browser.
+
+[Dashboard controls, worker modes, ports and troubleshooting](docs/dashboard.md).
+
 ## Manual join in five minutes
 
 1. Clone this repository (or use GitHub's **Use this template** button).
@@ -267,7 +287,7 @@ not a clinical accuracy estimate. [Try the live label query](https://leechuck.de
 After onboarding, open a second terminal and run:
 
 ```sh
-wasteland --state .town dashboard
+python3 -m wasteland --state .town dashboard
 ```
 
 Open **http://127.0.0.1:8394/** in your browser. The town map lists other towns,

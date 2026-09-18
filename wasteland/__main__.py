@@ -47,8 +47,9 @@ def main():
     onboard.add_argument(
         "--no-start", action="store_true", help="save setup without starting the worker"
     )
-    dashboard = sub.add_parser("dashboard", help="local town controls, mail and federation map")
-    dashboard.add_argument("--port", type=int, default=8394)
+    dashboard = sub.add_parser("dashboard", help="local town controls, mail and federation map",
+                               description="Run your local town dashboard, then open http://127.0.0.1:8394/ in your browser. Keep this terminal open. Use the same --state directory as onboarding.")
+    dashboard.add_argument("--port", type=int, default=8394, help="localhost HTTP port (default: 8394)")
     fair = sub.add_parser("fair-publish", help="validate and publish approved FAIR metadata")
     fair.add_argument("catalogue", type=Path)
     probe = sub.add_parser("fair-probe", help="explicitly test a bounded phenotype query or published file")

@@ -265,7 +265,12 @@ def run(directory, hub, invite_file=None, no_start=False):
     command = "python3 -m wasteland --state " + shlex.quote(str(directory)) + " work"
     print("\nSaved private setup:", path)
     print("Start/restart:", command)
-    print("Dashboard: python3 -m wasteland --state " + shlex.quote(str(directory)) + " dashboard")
+    print("\nDashboard — open a SECOND terminal in this checkout / Python environment:")
+    print("  python3 -m wasteland --state " + shlex.quote(str(directory)) + " dashboard")
+    print("Then open http://127.0.0.1:8394/ in your browser on this laptop (default port: 8394).")
+    print("Keep that dashboard terminal running. The answering worker does not start the dashboard automatically.")
+    print("Port busy? Add --port 8399 to the dashboard command and open http://127.0.0.1:8399/ instead.")
+    print("If this worker is already running, use the dashboard to monitor; stop it before clicking Start worker there.")
     print(
         f'Outside towns can use: python3 -m wasteland send {configured["name"]} "Hello" --operation message --wait 120'
     )

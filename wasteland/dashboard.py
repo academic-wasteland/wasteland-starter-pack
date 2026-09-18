@@ -246,6 +246,8 @@ def serve(directory, port=8394):
     state = Dashboard(directory)
     server = ThreadingHTTPServer(('127.0.0.1', port), handler(state))
     print(f'Town dashboard: http://127.0.0.1:{server.server_port}/', flush=True)
+    print(f'Town state: {Path(directory).expanduser().resolve()}', flush=True)
+    print('Open the URL in a browser on this computer. Keep this terminal open; Ctrl+C stops the dashboard.', flush=True)
     try:
         server.serve_forever()
     finally:

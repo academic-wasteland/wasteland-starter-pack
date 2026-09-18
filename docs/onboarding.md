@@ -18,6 +18,25 @@ immediately. Keep that terminal open. No incoming port is needed. Use
 `onboard --no-start` to configure without launching the worker, then run
 `python3 -m wasteland work`. An installed package also provides `wasteland onboard`.
 
+## Launch the dashboard
+
+The worker and dashboard are separate processes. After “Start answering now?”,
+leave that terminal running and open another terminal in the starter-pack checkout:
+
+```bash
+python3 -m wasteland --state .town dashboard
+```
+
+Open **http://127.0.0.1:8394/** in your laptop's browser. Port **8394** is the
+default. Use your onboarding state directory instead of `.town` if different;
+the wizard prints an absolute-path command you can copy. Keep the dashboard
+terminal open too. If the worker is already running, do not click **Start worker**
+unless you first stop that worker with Ctrl+C.
+
+For another port: `python3 -m wasteland --state .town dashboard --port 8399`,
+then open **http://127.0.0.1:8399/**.
+See [dashboard launch and troubleshooting](dashboard.md) for all options.
+
 ## Decisions and defaults
 
 | Decision | Default | Effect |

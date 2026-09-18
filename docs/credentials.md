@@ -5,6 +5,12 @@ Camelot advertises `credential-challenge`, `credential-apply`,
 and accreditations; those accreditations are not participant credentials.
 
 A town must independently decide which issuer/key and qualifications it trusts.
+A registrar publishing an issuer is not the same as vouching for it. Never trust
+an issuer by URL prefix or because it appears in the directory. Require an exact
+locally configured issuer/key trust anchor, or a verified accreditation chain to
+one, with the required scope, validity and revocation checks. The unaccredited
+`relay-test-only` issuer is for synthetic integration tests: trusting it requires
+an explicit test-only root configuration and must not enable real data access.
 Discovery never grants trust. Alternative authorities may implement the same
 operations; Camelot is not a required trust root.
 
@@ -134,13 +140,13 @@ Both the relay town directory and Camelot's `describe` operation advertise the
 credential operations. Discover them without guessing operation names.
 
 The pangenome-town CI checks out the independent implementation at
-`micheldumontier/wasteland-starter-pack@4c03774a0a9ed701d30648f94e56c084ca95d08a`
+`micheldumontier/wasteland-starter-pack@fa77cd1b50e78fa6d1056d6f4ba2665eb0f36f5d`
 and runs its unchanged signature, holder-binding and status verifiers against
 our registrar. To reproduce from a pangenome-town checkout:
 
 ```sh
 git clone https://github.com/micheldumontier/wasteland-starter-pack /tmp/zerzura-interop
-git -C /tmp/zerzura-interop checkout 4c03774a0a9ed701d30648f94e56c084ca95d08a
+git -C /tmp/zerzura-interop checkout fa77cd1b50e78fa6d1056d6f4ba2665eb0f36f5d
 ZERZURA_SOURCE=/tmp/zerzura-interop .venv/bin/python -m pytest -q tests/test_relay_credentials.py
 ```
 
@@ -149,3 +155,19 @@ wrong sending town, conflicting holder-key aliases, signed active status,
 stale/tampered status and revocation. This is independent-code interoperability;
 it does not claim to have exercised Zerzura's remotely deployed aggregate-data
 service or accepted its data-use undertaking on a participant's behalf.
+
+## Upgrading older clients
+
+Update the starter checkout and reinstall it before following these examples:
+
+```sh
+git pull --ff-only
+python -m pip install -e '.[credentials]'
+```
+
+`Client.ask(town, operation="credential-challenge", body={"request": request})`
+must send both `operation` and `request` in the message body. Older clients
+dropped the operation when a body was supplied, producing an echo response
+instead of a challenge. An `ok: true` echo is not a credential challenge: require
+the expected response fields and verify the challenge binding before signing.
+The regression test checks the actual envelope stored by the HTTP relay.

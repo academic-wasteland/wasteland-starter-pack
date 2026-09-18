@@ -140,12 +140,12 @@ Both the relay town directory and Camelot's `describe` operation advertise the
 credential operations. Discover them without guessing operation names.
 
 The pangenome-town CI checks out the independent implementation at
-`micheldumontier/wasteland-starter-pack@fa77cd1b50e78fa6d1056d6f4ba2665eb0f36f5d`
+`micheldumontier/zerzura@fa77cd1b50e78fa6d1056d6f4ba2665eb0f36f5d`
 and runs its unchanged signature, holder-binding and status verifiers against
 our registrar. To reproduce from a pangenome-town checkout:
 
 ```sh
-git clone https://github.com/micheldumontier/wasteland-starter-pack /tmp/zerzura-interop
+git clone https://github.com/micheldumontier/zerzura /tmp/zerzura-interop
 git -C /tmp/zerzura-interop checkout fa77cd1b50e78fa6d1056d6f4ba2665eb0f36f5d
 ZERZURA_SOURCE=/tmp/zerzura-interop .venv/bin/python -m pytest -q tests/test_relay_credentials.py
 ```

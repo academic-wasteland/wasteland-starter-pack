@@ -32,7 +32,7 @@ class Handler(base_handler):
             elif parsed.path.endswith('/api/record'):
                 value=index.record(query['id'][0]);value['revisions']=index.revisions(query['id'][0])
             elif parsed.path.endswith('/api/audit'):
-                value={'towns':[], 'jobs':[]}
+                value={'towns':[{'town':'test_requester_278632b8','checked_at':'2026-09-18T03:43:24.759930+00:00','counts':{'working':2,'failed':0,'not tested':3}}], 'jobs':[]}
             else:
                 value=document([i['record'] for i in index.search()])
             self.reply(200,value)

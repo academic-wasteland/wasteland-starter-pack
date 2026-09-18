@@ -13,6 +13,17 @@ def answer(message, config):
     index = Index(config['fair_index'])
     body = message['body']
     operation = body.get('operation')
+    if operation == 'fair-audit':
+        from .fair_audit import Auditor, SCOPE
+        offset = body.get('offset', 0)
+        if type(offset) is not int or offset < 0:
+            raise ValueError('Invalid audit offset.')
+        report = Auditor(Client(config['fair_state']), index).latest(message['from'])
+        if report:
+            checks = report.pop('checks')
+            report.update(checks=checks[offset:offset+1], total=len(checks),
+                          next_offset=offset+1 if offset+1 < len(checks) else None)
+        return {'ok': True, 'scope': SCOPE, 'report': report}
     if operation == 'fair-catalogue':
         return published(config, body)
     if operation == 'fair-registration':
@@ -33,8 +44,8 @@ def answer(message, config):
             return {'ok': False, 'error': str(error), 'text': 'Registration failed; previous records remain unchanged. Keep your provider worker running and retry.'}
     if operation in {'describe', 'message', 'echo'}:
         return {'ok': True, 'text': 'FAIRhaven indexes provider-owned services and resources. Publish your catalogue with fair-publish, keep your worker running, then use fair-register to register it. Use fair-search with query and optional semantic_type; fair-record with id for a full description. Listings confer no access or trust.',
-                'residents': [{'name': 'guide', 'role': 'FAIR discovery and metadata guidance'}],
-                'capabilities': ['message', 'describe', 'fair-search', 'fair-record', 'fair-register', 'fair-registration', 'fair-catalogue']}
+                'residents': [{'name': 'guide', 'role': 'FAIR discovery and metadata guidance'}, {'name': 'auditor', 'role': 'Hourly service checks and FAIR improvement reports'}],
+                'capabilities': ['message', 'describe', 'fair-search', 'fair-record', 'fair-register', 'fair-registration', 'fair-catalogue', 'fair-audit']}
     if operation == 'fair-search':
         query = body.get('query', '')
         semantic_type = body.get('semantic_type', '')
@@ -50,7 +61,7 @@ def answer(message, config):
     return {'ok': False, 'error': 'Use fair-register, fair-registration, fair-search, fair-record or message.'}
 
 
-def handler(index):
+def handler(index, auditor=None):
     class Handler(BaseHTTPRequestHandler):
         def log_message(self, *args):
             pass
@@ -77,6 +88,8 @@ def handler(index):
             elif parsed.path == '/catalogue.jsonld':
                 value = document([item['record'] for item in index.search() if item['publication'] == 'listed'])
                 kind = 'application/ld+json'
+            elif parsed.path == '/api/audit' and auditor is not None:
+                value = auditor.status()
             elif parsed.path == '/healthz':
                 value = {'ok': True, 'mode': 'read-only-fair-index'}
             else:
@@ -98,12 +111,21 @@ def serve(directory, bind='127.0.0.1', port=8396, interval=300):
     config = client.config
     config['fair_state'] = str(Path(directory).resolve())
     config['fair_index'] = str((Path(directory) / 'fair.sqlite').resolve())
-    config['capabilities'] = ['echo', 'describe', 'message', 'fair-search', 'fair-record', 'fair-register', 'fair-registration', 'resident:guide']
+    config['capabilities'] = ['echo', 'describe', 'message', 'fair-search', 'fair-record', 'fair-register', 'fair-registration', 'fair-audit', 'resident:guide', 'resident:auditor']
     save_config(directory, config)
     index = Index(config['fair_index'])
     if config.get('fair_catalogue'):
         index.ingest(client.name, json.loads(Path(config['fair_catalogue']).read_text()))
+    from .fair_audit import Auditor
+    auditor = Auditor(client, index)
     stop = threading.Event()
+    def audit():
+        while not stop.is_set():
+            try:
+                auditor.tick()
+            except Exception as error:
+                print(json.dumps({'audit_error': type(error).__name__}), flush=True)
+            stop.wait(30)
     def collect():
         while not stop.is_set():
             try:
@@ -119,7 +141,9 @@ def serve(directory, bind='127.0.0.1', port=8396, interval=300):
             worker.db.close()
     threading.Thread(target=collect, daemon=True).start()
     threading.Thread(target=work, daemon=True).start()
-    server = ThreadingHTTPServer((bind, port), handler(index))
+    if config.get('fair_audit', False):
+        threading.Thread(target=audit, daemon=True).start()
+    server = ThreadingHTTPServer((bind, port), handler(index, auditor))
     print(f'FAIR city: http://{bind}:{server.server_port}/', flush=True)
     try:
         server.serve_forever()

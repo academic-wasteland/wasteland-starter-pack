@@ -185,3 +185,28 @@ the response's model hash against the harvested description. It includes the
 service snapshot in downloadable evidence and annotates mouse-ranked profiles
 with MGI human orthologues. Demo-authored metadata and generated tables use
 CC BY 4.0, attribution Academic Wasteland; upstream rights remain separate.
+
+## Explicit registration with FAIRhaven
+
+Town repository: https://github.com/academic-wasteland/fairhaven.
+Publish your provider-owned catalogue, keep its worker running, then run in a
+second terminal:
+
+```sh
+python3 -m wasteland --state .town fair-register
+```
+
+FAIRhaven fetches only the requesting town's authenticated relay pages, validates
+the whole snapshot and returns a durable receipt: owner, revision, timestamp and
+record count. `--to` chooses another registry. `fair-registration` returns the
+caller's last explicit receipt. No payload field can substitute another publisher.
+
+A mismatch, unavailable provider or invalid metadata leaves existing records
+unchanged. Republish and register a full snapshot to update; an empty catalogue
+withdraws your entries, retaining their last metadata/history. Background
+harvesting still refreshes advertised providers. Receipts remain pinned to the
+last explicit registration and do not confer access or certify scientific quality.
+
+FAIRhaven describes its own registration/search services, registry and profile
+using the same metadata checks. Indexed providers retain their own reuse terms;
+the registry does not relicense them. HTTP catalogue access remains read-only.

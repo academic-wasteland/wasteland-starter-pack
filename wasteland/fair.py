@@ -7,6 +7,7 @@ import hashlib
 import json
 import re
 import sqlite3
+import time
 from contextlib import closing
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -175,6 +176,7 @@ class Index:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         with closing(self.connect()) as db, db:
             db.executescript('''
+              CREATE TABLE IF NOT EXISTS registrations(owner TEXT PRIMARY KEY, revision TEXT, registered TEXT, count INTEGER);
               CREATE TABLE IF NOT EXISTS records(id TEXT PRIMARY KEY, owner TEXT, digest TEXT, document TEXT,
                 observed TEXT, state TEXT);
               CREATE TABLE IF NOT EXISTS revisions(id TEXT, digest TEXT, document TEXT, observed TEXT,
@@ -188,7 +190,7 @@ class Index:
         db.row_factory = sqlite3.Row
         return db
 
-    def ingest(self, owner, doc):
+    def ingest(self, owner, doc, *, registration=False):
         records = validate(doc, owner)
         stamp = now()
         with closing(self.connect()) as db, db:
@@ -199,7 +201,14 @@ class Index:
                 db.execute('INSERT OR REPLACE INTO records VALUES(?,?,?,?,?,?)',
                            (record['@id'], owner, d, canonical(record), stamp, 'listed'))
             db.execute('INSERT OR REPLACE INTO sources VALUES(?,?,NULL)', (owner, stamp))
+            if registration:
+                db.execute('INSERT OR REPLACE INTO registrations VALUES(?,?,?,?)', (owner, digest(doc), stamp, len(records)))
         return len(records)
+
+    def registration(self, owner):
+        with closing(self.connect()) as db:
+            row = db.execute('SELECT * FROM registrations WHERE owner=?', (owner,)).fetchone()
+        return dict(row) if row else None
 
     def failure(self, owner, error):
         with closing(self.connect()) as db, db:
@@ -245,6 +254,42 @@ class Index:
                     for row in db.execute('SELECT * FROM revisions WHERE id=? ORDER BY observed', (identifier,))]
 
 
+def fetch_catalogue(client, owner, *, timeout=15, expected_revision=None):
+    """Fetch only the authenticated provider's relay pages, never arbitrary URLs."""
+    name(owner)
+    deadline = time.monotonic() + 90
+    records, offset, revision = [], 0, None
+    for _ in range(101):
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise ValueError('Catalogue retrieval exceeded 90 seconds; retry.')
+        mid = client.ask(owner, operation='fair-catalogue', body={'offset': offset})
+        replies = client.wait(mid, min(timeout, remaining), acknowledge=False)
+        reply = next((r for r in replies if r['from'] == owner and r['in_reply_to'] == mid and r['kind'] == 'answer'), None)
+        if reply is None or not reply['body'].get('ok'):
+            raise ValueError('Provider did not return a catalogue.')
+        body = reply['body']
+        if revision is not None and body.get('revision') != revision:
+            raise ValueError('Catalogue changed during pagination; retry.')
+        revision = body.get('revision')
+        records.extend(validate(body['catalogue'], owner))
+        client.call('/v1/ack', {'id': reply['id']})
+        following = body.get('next_offset')
+        if following is None:
+            break
+        if type(following) is not int or following <= offset or following > 100:
+            raise ValueError('Invalid catalogue pagination.')
+        offset = following
+    else:
+        raise ValueError('Too many catalogue pages.')
+    doc = document(records)
+    if digest(doc) != revision:
+        raise ValueError('Catalogue digest mismatch.')
+    if expected_revision is not None and revision != expected_revision:
+        raise ValueError('Published catalogue differs from the requested revision; publish/register again.')
+    return doc
+
+
 def harvest(client, index, *, timeout=15):
     """Only authenticated relay replies; never fetch URLs supplied by providers."""
     outcomes = []
@@ -253,30 +298,7 @@ def harvest(client, index, *, timeout=15):
         if owner == client.name or 'fair-catalogue' not in town.get('capabilities', []):
             continue
         try:
-            records, offset, revision = [], 0, None
-            for _ in range(101):
-                mid = client.ask(owner, operation='fair-catalogue', body={'offset': offset})
-                replies = client.wait(mid, timeout, acknowledge=False)
-                reply = next((r for r in replies if r['from'] == owner and r['in_reply_to'] == mid and r['kind'] == 'answer'), None)
-                if reply is None or not reply['body'].get('ok'):
-                    raise ValueError('Provider did not return a catalogue.')
-                body = reply['body']
-                if revision is not None and body.get('revision') != revision:
-                    raise ValueError('Catalogue changed during pagination; retry.')
-                revision = body.get('revision')
-                records.extend(validate(body['catalogue'], owner))
-                client.call('/v1/ack', {'id': reply['id']})
-                following = body.get('next_offset')
-                if following is None:
-                    break
-                if type(following) is not int or following <= offset or following > 100:
-                    raise ValueError('Invalid catalogue pagination.')
-                offset = following
-            else:
-                raise ValueError('Too many catalogue pages.')
-            doc = document(records)
-            if digest(doc) != revision:
-                raise ValueError('Catalogue digest mismatch.')
+            doc = fetch_catalogue(client, owner, timeout=timeout)
             count = index.ingest(owner, doc)
             outcomes.append({'town': owner, 'records': count, 'ok': True})
         except (ValueError, KeyError, OSError, RuntimeError) as error:

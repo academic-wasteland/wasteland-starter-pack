@@ -52,6 +52,8 @@ def main():
     dashboard.add_argument("--port", type=int, default=8394, help="localhost HTTP port (default: 8394)")
     fair = sub.add_parser("fair-publish", help="validate and publish approved FAIR metadata")
     fair.add_argument("catalogue", type=Path)
+    register = sub.add_parser("fair-register", help="register your published catalogue with a FAIR town (keep your worker running)")
+    register.add_argument("--to", default="fairhaven", help="registry town (default: fairhaven)")
     probe = sub.add_parser("fair-probe", help="explicitly test a bounded phenotype query or published file")
     probe.add_argument("id")
     concord_city = sub.add_parser("concord-city", help="serve versioned standards and conformance evidence")
@@ -125,6 +127,21 @@ def main():
             save_config(args.state, client.config)
             client.call("/v1/heartbeat", advertisement(client.config))
             print(f"Published {len(records)} descriptions. Restart the worker to reload its configuration.")
+        elif args.command == "fair-register":
+            from .fair import digest, validate
+            client = Client(args.state)
+            path = client.config.get('fair_catalogue')
+            if not path:
+                raise ValueError('First run fair-publish catalogue.jsonld, then start/restart your worker.')
+            doc = json.loads(Path(path).read_text())
+            validate(doc, client.name)
+            mid = client.ask(args.to, operation='fair-register', body={'revision': digest(doc)})
+            print(f'Registration request: {mid}', flush=True)
+            replies = client.wait(mid, 120, acknowledge=False)
+            reply = next((r for r in replies if r['from'] == args.to and r['kind'] == 'answer' and r['in_reply_to'] == mid), None)
+            if not reply or not reply['body'].get('ok'):
+                raise ValueError(reply['body'].get('error', 'Registration refused') if reply else 'No registration answer received')
+            print(json.dumps(reply['body'], indent=2))
         elif args.command == "fair-probe":
             from .fair import Index
             from .fair_probe import probe

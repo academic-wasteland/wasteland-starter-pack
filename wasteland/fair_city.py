@@ -6,17 +6,35 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
 
 from .client import Client, Worker, save_config
-from .fair import Index, document, harvest
+from .fair import Index, document, harvest, fetch_catalogue, published
 
 
 def answer(message, config):
     index = Index(config['fair_index'])
     body = message['body']
     operation = body.get('operation')
+    if operation == 'fair-catalogue':
+        return published(config, body)
+    if operation == 'fair-registration':
+        return {'ok': True, 'registration': index.registration(message['from'])}
+    if operation == 'fair-register':
+        try:
+            if set(body) - {'operation', 'text', 'resident', 'revision'}:
+                raise ValueError('Registration accepts only your catalogue revision; publisher comes from your authenticated town.')
+            revision = body.get('revision')
+            import re
+            if not isinstance(revision, str) or not re.fullmatch(r'sha256:[0-9a-f]{64}', revision):
+                raise ValueError('Supply the SHA-256 revision of your published catalogue.')
+            doc = fetch_catalogue(Client(config['fair_state']), message['from'], expected_revision=revision)
+            count = index.ingest(message['from'], doc, registration=True)
+            return {'ok': True, 'text': f'Registered {count} descriptions for {message["from"]}. Metadata is discoverable; access remains with the provider.',
+                    'registration': index.registration(message['from'])}
+        except (ValueError, KeyError, OSError, RuntimeError) as error:
+            return {'ok': False, 'error': str(error), 'text': 'Registration failed; previous records remain unchanged. Keep your provider worker running and retry.'}
     if operation in {'describe', 'message', 'echo'}:
-        return {'ok': True, 'text': 'FAIRhaven indexes provider-owned services and resources. Use fair-search with query and optional semantic_type; fair-record with id for a full description. Listings confer no access or trust.',
+        return {'ok': True, 'text': 'FAIRhaven indexes provider-owned services and resources. Publish your catalogue with fair-publish, keep your worker running, then use fair-register to register it. Use fair-search with query and optional semantic_type; fair-record with id for a full description. Listings confer no access or trust.',
                 'residents': [{'name': 'guide', 'role': 'FAIR discovery and metadata guidance'}],
-                'capabilities': ['message', 'describe', 'fair-search', 'fair-record']}
+                'capabilities': ['message', 'describe', 'fair-search', 'fair-record', 'fair-register', 'fair-registration', 'fair-catalogue']}
     if operation == 'fair-search':
         query = body.get('query', '')
         semantic_type = body.get('semantic_type', '')
@@ -29,7 +47,7 @@ def answer(message, config):
     if operation == 'fair-record':
         item = index.record(body.get('id'))
         return {'ok': item is not None, 'result': item}
-    return {'ok': False, 'error': 'Use fair-search, fair-record or message.'}
+    return {'ok': False, 'error': 'Use fair-register, fair-registration, fair-search, fair-record or message.'}
 
 
 def handler(index):
@@ -78,10 +96,13 @@ def handler(index):
 def serve(directory, bind='127.0.0.1', port=8396, interval=300):
     client = Client(directory)
     config = client.config
+    config['fair_state'] = str(Path(directory).resolve())
     config['fair_index'] = str((Path(directory) / 'fair.sqlite').resolve())
-    config['capabilities'] = ['echo', 'describe', 'message', 'fair-search', 'fair-record', 'resident:guide']
+    config['capabilities'] = ['echo', 'describe', 'message', 'fair-search', 'fair-record', 'fair-register', 'fair-registration', 'resident:guide']
     save_config(directory, config)
     index = Index(config['fair_index'])
+    if config.get('fair_catalogue'):
+        index.ingest(client.name, json.loads(Path(config['fair_catalogue']).read_text()))
     stop = threading.Event()
     def collect():
         while not stop.is_set():

@@ -363,3 +363,11 @@ Remote work remains unobservable until the remote town reports it. “Request
 stop” asks the recipient to stop; it cannot unilaterally cancel remote jobs.
 
 [Identity, tracing and diagnostic workflow documentation](https://github.com/academic-wasteland/pangenome-town/blob/main/docs/conversations.md)
+
+### Register services with FAIRhaven
+
+FAIRhaven is the [registry town](https://github.com/academic-wasteland/fairhaven).
+After `fair-publish catalogue.jsonld`, keep your town worker running and run
+`python3 -m wasteland --state .town fair-register` in another terminal. You receive
+a revision-bound receipt; discover registered services/resources at
+https://leechuck.de/wasteland-fair/. See [registration details](docs/fair-services.md#explicit-registration-with-fairhaven).

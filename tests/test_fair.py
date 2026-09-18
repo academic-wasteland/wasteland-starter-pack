@@ -157,6 +157,49 @@ class FederationFairTests(unittest.TestCase):
         self.assertEqual(len(self.index.search()), 4)
         self.assertNotIn(Client(self.root / 'bravo').config['token'], json.dumps(self.index.search()))
 
+    def test_explicit_registration_over_relay_preserves_provider_boundaries(self):
+        from wasteland.fair_city import answer
+        cfg = Client(self.root / 'alpha').config
+        cfg['fair_index'] = str(self.index.path)
+        cfg['fair_state'] = str(self.root / 'alpha')
+        save_config(self.root / 'alpha', cfg)
+        stop = threading.Event()
+        def work():
+            worker = Worker(self.root / 'alpha', answer)
+            try:
+                worker.run(interval=.02, stop=stop)
+            finally:
+                worker.db.close()
+        thread = threading.Thread(target=work)
+        thread.start()
+        client = Client(self.root / 'bravo')
+        def register(revision, **extra):
+            mid = client.ask('alpha', operation='fair-register', body={'revision':revision, **extra})
+            return client.wait(mid, 10, acknowledge=False)[0]['body']
+        try:
+            receipt = register(digest(self.doc))
+            self.assertTrue(receipt['ok'], receipt)
+            self.assertEqual(receipt['registration']['owner'], 'bravo')
+            self.assertEqual(receipt['registration']['count'], 4)
+            self.assertEqual(Index(self.index.path).registration('bravo'), receipt['registration'])
+            self.assertFalse(register(digest(self.doc), owner='alpha')['ok'])
+            self.assertFalse(register('sha256:'+'0'*64)['ok'])
+            self.assertEqual(len(self.index.search()),4)
+            invalid = copy.deepcopy(self.doc)
+            invalid['@graph'][0]['publisher'] = 'urn:wasteland:town:alpha'
+            (self.root/'public.jsonld').write_text(json.dumps(invalid))
+            self.assertFalse(register(digest(invalid))['ok'])
+            self.assertEqual(self.index.registration('bravo'),receipt['registration'])
+            (self.root/'public.jsonld').write_text(json.dumps(document([])))
+            withdrawn = register(digest(document([])))
+            self.assertTrue(withdrawn['ok'])
+            self.assertEqual(withdrawn['registration']['count'],0)
+            self.assertTrue(all(r['publication']=='withdrawn' for r in self.index.search()))
+            self.assertTrue(self.index.revisions(self.doc['@graph'][0]['@id']))
+            self.assertIsNone(self.index.registration('alpha'))
+        finally:
+            stop.set(); thread.join(5)
+
     def test_tampered_revision_keeps_previous_catalogue(self):
         self.index.ingest('bravo', self.doc)
         class Fake:

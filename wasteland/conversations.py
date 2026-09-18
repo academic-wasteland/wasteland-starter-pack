@@ -6,6 +6,7 @@ from contextlib import contextmanager
 from pathlib import Path
 
 from .protocol import name, now
+from .publication import VISIBILITY
 
 CONTEXT = '_conversation'
 
@@ -238,6 +239,10 @@ class RelayHub:
         available = {r['id']: r for r in directory['resources']}
         if any(r not in available for r in refs):
             raise ValueError('Unknown resource reference')
+        if type(data.get('public', False)) is not bool:
+            raise ValueError('Public visibility must be a checkbox boolean.')
+        if data.get('public') and via == to:
+            raise ValueError('Public messages must go to another town through the relay.')
         thread = thread or self.store.create(data['person_id'], via, to, resident, text)
         previous = self.store.events(thread['id'])
         parent = None
@@ -250,6 +255,8 @@ class RelayHub:
                 continue
         payload = {'operation': 'message', 'resident': resident, 'text': text,
                    CONTEXT: self.store.context(thread, parent)}
+        if data.get('public') and action == 'send':
+            payload[VISIBILITY] = 'public'
         if phenotypes:
             payload['phenotypes'] = phenotypes
         if refs:
@@ -272,14 +279,16 @@ class RelayHub:
         if to == self.client.name:
             from .client import load_handler, default_handler
             handler = load_handler(self.client.config['handler']) if self.client.config.get('handler') else default_handler
-            message = envelope('local_operator', to, body={k: v for k, v in payload.items() if k != CONTEXT})
+            message = envelope('local_operator', to, body={k: v for k, v in payload.items() if k not in (CONTEXT, VISIBILITY)})
             message[CONTEXT] = payload[CONTEXT]
             reply = handler(message, self.client.config)
             self.store.add(thread['id'], sender=to + '/' + payload['resident'], recipient=thread['person']['display'],
                            text=reply.get('text') or reply.get('error') or 'Structured response.',
                            state='replied' if reply.get('ok', True) else 'failed', payload=reply, parent=request_id)
             return
-        message = envelope(self.client.name, to, body=payload)
+        message = envelope(self.client.name, to, body={k:v for k,v in payload.items() if k != VISIBILITY})
+        if payload.get(VISIBILITY) == 'public':
+            message['visibility'] = 'public'
         message['id'] = request_id
         self.client.send(message)
         self.store.add(thread['id'], sender=self.client.name, recipient=to + '/' + payload['resident'],

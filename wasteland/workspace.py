@@ -16,7 +16,7 @@ def envelope(message, *, status='', source='relay'):
             'recipient': message.get('to', '') + ('/' + str(body['resident']) if body.get('resident') else ''),
             'created': message.get('created', ''), 'text': body.get('text', ''),
             'state': status or message.get('kind', ''), 'kind': message.get('kind', ''),
-            'operation': body.get('operation', ''), 'payload': body,
+            'operation': body.get('operation', ''), 'payload': body, 'visibility': message.get('visibility', 'private'),
             'conversation': context.get('id'), 'source': source}
 
 

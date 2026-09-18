@@ -33,6 +33,7 @@ try:
         if line.strip() == 'traffic':
             from wasteland.client import Client
             Client(fixture.root/'bravo').ask('alpha',operation='message',text='DO NOT PUBLISH THIS BODY')
+            Client(fixture.root/'bravo').ask('alpha', operation='message', text='<img src=x onerror=alert(1)> PUBLIC NOTICE', body={'data': {'gene': 'FBN1'}}, public=True)
             print('sent',flush=True)
         if line.strip() == 'stop':
             break

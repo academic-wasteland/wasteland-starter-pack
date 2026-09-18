@@ -55,7 +55,7 @@ def envelope(
 
 
 def validate(message):
-    if not isinstance(message, dict) or set(message) != {
+    if not isinstance(message, dict) or set(message) - {"visibility"} != {
         "schema_version",
         "id",
         "kind",
@@ -99,6 +99,8 @@ def validate(message):
         raise ProtocolError(
             "body must be an object; this relay accepts no file attachments"
         )
+    from .publication import validate as validate_publication
+    validate_publication(message)
     if len(canonical(message).encode()) > MAX_BYTES:
         raise ProtocolError("envelope too large", 413)
     if message["kind"] == "answer" and not message["in_reply_to"]:

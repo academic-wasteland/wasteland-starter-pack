@@ -78,6 +78,7 @@ def main():
     send.add_argument("text", nargs="?", default="")
     send.add_argument("--operation", default="echo")
     send.add_argument("--body", type=Path)
+    send.add_argument("--public", action="store_true", help="Publish this message text and payload in the public observatory")
     send.add_argument("--wait", type=float, default=0, metavar="SECONDS")
     resource = sub.add_parser(
         "resource", help="download a published town resource with digest verification"
@@ -194,6 +195,7 @@ def main():
                 operation=args.operation,
                 text=args.text,
                 body=json.loads(args.body.read_text()) if args.body else None,
+                public=args.public,
             )
             print("Request:", message_id, flush=True)
             if args.wait:

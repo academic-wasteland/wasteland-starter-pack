@@ -52,14 +52,16 @@ const {chromium} = require('playwright');
     await page.locator('[data-contact="bravo/contact"]').first().click();
     await page.waitForSelector('#compose-view:not([hidden])');
     assert.equal(await page.locator('#town').inputValue(), 'bravo');
+    assert.equal(await page.locator('#public-message').isChecked(), false);
+    await page.locator('#public-message').check();
     await page.locator('#text').fill('Draft must survive live refresh.');
-    // A new conversation can be sent to the fixture's local guide without outside mail.
-    await page.locator('#town').selectOption('alpha');
-    await page.locator('#agent').selectOption('guide');
+    // Send to the fixture's other town through its isolated relay.
+
     await page.locator('#send').click();
     await page.waitForSelector('.message');
     assert.match(await page.locator('#messages').innerText(), /Draft must survive live refresh/);
     assert.equal(await page.locator('#text').inputValue(), '');
+    assert.equal(await page.locator('#public-message').isChecked(), false);
     await page.locator('[data-page=messages]').click();
     await page.setViewportSize({width: 390, height: 844});
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, 'mobile must not overflow');

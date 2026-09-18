@@ -123,9 +123,13 @@ class Client:
     def send(self, message):
         return self.call("/v1/messages", message)
 
-    def ask(self, to, *, operation="echo", text="", body=None):
+    def ask(self, to, *, operation="echo", text="", body=None, public=False):
         message = envelope(self.name, to, text, operation,
                            body=None if body is None else {"text": text, "operation": operation, **body})
+        if type(public) is not bool:
+            raise ValueError("public must be a boolean")
+        if public:
+            message["visibility"] = "public"
         self.send(message)
         return message["id"]
 
@@ -212,8 +216,9 @@ class Worker:
                 if message["kind"] == "question":
                     try:
                         from .conversations import CONTEXT, context, child_context
+                        from .publication import VISIBILITY
                         trace = context(message['body'][CONTEXT]) if CONTEXT in message['body'] else None
-                        delivered = dict(message, body={k: v for k, v in message['body'].items() if k != CONTEXT})
+                        delivered = dict(message, body={k: v for k, v in message['body'].items() if k not in (CONTEXT, VISIBILITY)})
                         if trace:
                             delivered[CONTEXT] = trace
                         body = self.handler(delivered, self.client.config)

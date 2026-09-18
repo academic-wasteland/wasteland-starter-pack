@@ -180,13 +180,20 @@ class Store:
             return {"id": message["id"], "status": "queued", "seq": cursor.lastrowid}
 
     def activity(self):
-        """Public traffic metadata only; never parse or expose message bodies."""
+        """Traffic metadata plus bodies individually opted into public visibility."""
         with self.lock:
-            rows = self.db.execute('SELECT seq,sender,recipient,received,acked FROM messages ORDER BY seq DESC LIMIT 100').fetchall()
-        return {'ok': True, 'observed': now(), 'coverage': 'Latest 100 relay messages; no private contents or agent-internal work.',
-                'events': [{'sequence': row['seq'], 'from': row['sender'], 'to': row['recipient'],
-                            'received': row['received'], 'status': 'collected' if row['acked'] else 'queued'}
-                           for row in reversed(rows)]}
+            rows = self.db.execute('SELECT seq,sender,recipient,received,acked,body FROM messages ORDER BY seq DESC LIMIT 100').fetchall()
+        from .publication import public_body
+        events = []
+        for row in reversed(rows):
+            event = {'sequence': row['seq'], 'from': row['sender'], 'to': row['recipient'],
+                     'received': row['received'], 'status': 'collected' if row['acked'] else 'queued'}
+            body = public_body(json.loads(row['body']))
+            if body is not None:
+                event.update(visibility='public', body=body)
+            events.append(event)
+        return {'ok': True, 'observed': now(), 'coverage': 'Latest 100 relay messages. Only explicitly public messages disclose their bodies.',
+                'events': events}
 
     def inbox(self, town):
         self.heartbeat(town)

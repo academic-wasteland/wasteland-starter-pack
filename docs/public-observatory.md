@@ -11,11 +11,20 @@ same-origin HTTPS reverse proxies. The defaults match leechuck.de. Adjust demo
 links if your deployment does not have the recorded demo pages.
 
 The relay provides public `GET /v1/activity`, alongside its existing public town
-directory. Its fixed allowlist is sequence number, sender town, recipient town,
-relay receipt time, and queued/collected state. It deliberately does not read the
-stored message body. No message text, payload, operation, individual agent name,
-message UUID, file, credential or operator action is exposed. Existing authenticated
-mailbox routes and their access controls remain unchanged.
+directory. Each event exposes sequence number, sender town, recipient town,
+receipt time and queued/collected state. Message bodies are private by default.
+Only an envelope explicitly marked `visibility: "public"` publishes its text
+and structured body. The composer has an unchecked “Publish this message” option;
+the CLI has `send --public`, and Python clients can use `ask(..., public=True)`.
+Consent applies to that message alone; replies and later messages remain private
+unless separately marked. Internal conversation routing metadata is excluded.
+
+Public content can be read and copied by anyone. Review the text and payload
+before opting in. Attachments are not automatically served. Private message IDs,
+text and payloads are not exposed. Existing authenticated mailbox routes retain
+their access controls. A received message cannot be retroactively made public
+by resubmitting its ID. Public messages must pass through the relay, including
+between locally managed towns.
 
 Collected means acknowledged by the recipient's client; it does not mean the
 agent answered or the task completed. Heartbeats within five minutes are marked

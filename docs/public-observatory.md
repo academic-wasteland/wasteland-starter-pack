@@ -51,3 +51,10 @@ controls are exposed. Service links use stable record IDs in the URL fragment;
 the shared observatory and FAIRhaven templates. The pangenome-town demo exporter
 calls it automatically, so future recorded-demo exports retain the portal.
 The original FAIRhaven URL and existing demo URLs continue to work.
+
+The homepage also links to `/academic-wasteland/sysifoss/`, a static replay exported
+from the Sysifoss repository. It captures a real TES job and RO-Crate contribution
+carrier, plus two rejection scenarios, with the scripted demo reasoner identified.
+Build that subdirectory separately with Sysifoss's `docs/demos/export_public_demo.py`;
+portal generation leaves it intact. This page does not expose Sysifoss's local demo
+server or create cloud jobs for visitors.

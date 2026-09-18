@@ -271,21 +271,34 @@ class Worker:
                 fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
             except BlockingIOError:
                 raise RemoteError("a worker already runs for this town; stop it before starting another") from None
+            print(f"{self.client.name}: starting worker; connecting to the relay. Ctrl+C stops answering.", flush=True)
             self._run(interval, stop)
 
     def _run(self, interval=2, stop=None):
         advertised = 0.0
+        connected = False
+        last_status = 0.0
         while stop is None or not stop.is_set():
             try:
                 if time.monotonic() - advertised >= 30:
                     self.client.call("/v1/heartbeat", advertisement(self.client.config))
                     advertised = time.monotonic()
                 count = self.tick()
+                current = time.monotonic()
+                if not connected:
+                    print(f"{self.client.name}: connected; listening for messages. An idle worker is normal.", flush=True)
+                    connected = True
+                    last_status = current
+                elif not count and current - last_status >= 60:
+                    print(f"{self.client.name}: connected; waiting for messages (no new messages this poll).", flush=True)
+                    last_status = current
                 if count:
                     print(
                         f"{self.client.name}: processed {count} message(s)", flush=True
                     )
+                    last_status = current
             except RemoteError as error:
+                connected = False
                 print(f"{self.client.name}: {error}; retrying", flush=True)
             if stop is not None:
                 stop.wait(interval)

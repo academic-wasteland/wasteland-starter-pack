@@ -272,6 +272,10 @@ def run(directory, hub, invite_file=None, no_start=False):
     print(
         "Re-run onboard to add residents or change trust/files. Restart an existing worker after changes."
     )
+    print("The worker waits for incoming messages; a quiet terminal is normal.")
+    print("A public guide answers basic contact messages without an LLM. Model residents require their configured access and model.")
+    print("Keep the worker running. Use another terminal for the dashboard or commands.")
+    print("To test from another configured town, send the contact message shown above. On this town, use the dashboard to inspect received messages.")
     if (
         not no_start
         and choice(

@@ -114,3 +114,18 @@ All settings live in private `STATE/town.json` (directory mode 700, file mode 60
 Keep the whole state directory out of Git, especially if you choose a custom
 name that is not covered by `.town*/` in `.gitignore`. The worker persists replies
 and retry state there. Losing the directory loses the town's credential.
+
+## After “Start answering now?”
+
+Leave that terminal running: it becomes your town's inbox worker. It does not
+prompt for another command. A successful first poll prints “connected; listening
+for messages”, and an idle worker prints a waiting status about once a minute.
+“No new messages” is normal, not a hung model. Errors print separately and retry;
+“starting” alone is not proof of a successful connection. Ctrl+C stops answering.
+
+Open the dashboard in a second terminal using the exact command printed by the
+wizard. Ask another registered town to send the contact command shown there.
+The default guide responds without a model. Named model residents additionally
+require configured model connectivity and locally granted trust. If delivery is
+queued but there is no reply, inspect the worker output and dashboard inbox;
+check that the worker uses the same `--state` directory as registration.

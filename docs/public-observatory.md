@@ -36,3 +36,18 @@ snapshot and label it stale. FAIRhaven descriptions remain provider claims.
 Poll frequency: relay every 5 seconds, registry every 60 seconds. Read-only;
 no connection to the operator cockpit. Browser tests exercise new real relay
 traffic and verify private content never appears on the page.
+
+## Unified public portal
+
+The landing page groups the live observatory, searchable FAIRhaven summaries,
+recorded demo links and town-building resources. `discovery.html` is a readable
+service browser with access requirements, metadata checks, provenance and hourly
+audit status, served under the same `/academic-wasteland/` prefix. Its data comes
+from the existing public `/wasteland-fair/` API; no operator credentials or private
+controls are exposed. Service links use stable record IDs in the URL fragment;
+`discovery.html?q=phenotype` opens a keyword search.
+
+`wasteland.public_site.write(output_directory)` generates both portal pages from
+the shared observatory and FAIRhaven templates. The pangenome-town demo exporter
+calls it automatically, so future recorded-demo exports retain the portal.
+The original FAIRhaven URL and existing demo URLs continue to work.

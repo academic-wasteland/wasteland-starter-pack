@@ -123,6 +123,23 @@ class Dashboard:
                 'worker': self.worker_status(), 'towns': towns, 'inbox': inbox,
                 'history': history, 'outgoing': outgoing, 'errors': errors}
 
+    def workspace(self, selected=None, search=''):
+        from .workspace import conversation_messages, envelope, project
+        snapshot = self.snapshot()
+        messages = [envelope(m, status='received') for m in snapshot['inbox']]
+        for row in snapshot['history']:
+            messages.append(envelope(row['message'], status='handled'))
+            if row['reply']:
+                messages.append(envelope(row['reply'], status='sent'))
+        for row in snapshot['outgoing']:
+            original = row['message']
+            messages.append(envelope({'id': row['id'], 'from': self.client.name,
+                                      'to': original['to'], 'body': original}, status='sent'))
+            for reply in (row.get('result') or {}).get('replies', []):
+                messages.append(envelope(reply, status='received'))
+        messages.extend(conversation_messages(self.conversations.store))
+        return project(messages, selected=selected, errors=snapshot['errors'], managed=[self.client.name], search=search)
+
     def action(self, action, body):
         with self.lock:
             if action.startswith('conversations/'):
@@ -205,12 +222,16 @@ def handler(state):
                 return
             path = urlsplit(self.path).path
             try:
-                if path == '/':
+                if path == '/operations':
                     page = Path(__file__).with_name('dashboard.html').read_text().replace('__TOKEN__', state.token)
                     self.reply(200, page.encode(), 'text/html; charset=utf-8')
-                elif path == '/conversations':
+                elif path in ('/', '/conversations'):
                     page = Path(__file__).with_name('conversations.html').read_text().replace('__TOKEN_HEADER__', 'X-Town-Token').replace('__TOKEN__', state.token)
                     self.reply(200, page.encode(), 'text/html; charset=utf-8')
+                elif path == '/api/workspace':
+                    from urllib.parse import parse_qs
+                    selected = parse_qs(urlsplit(self.path).query).get('id', [None])[0]
+                    self.reply(200, state.workspace(selected, parse_qs(urlsplit(self.path).query).get('q', [''])[0][:500]))
                 elif path == '/api/conversations':
                     from urllib.parse import parse_qs
                     cid = parse_qs(urlsplit(self.path).query).get('id', [None])[0]

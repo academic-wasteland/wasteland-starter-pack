@@ -290,7 +290,10 @@ After onboarding, open a second terminal and run:
 python3 -m wasteland --state .town dashboard
 ```
 
-Open **http://127.0.0.1:8394/** in your browser. The town map lists other towns,
+Open **http://127.0.0.1:8394/** in your browser. The shared workspace opens on full
+message content, with search, linked replies and expandable data. Use Conversations
+to compose and Towns & services to discover contacts. See the [workspace guide](docs/workspace.md).
+Existing controls remain at `/operations`, where the town map lists other towns,
 last contact times and published capabilities. Select a town to message its
 general contact or a named resident, request its full profile, or list its shared
 resources. Requests and replies remain in the activity view across restarts;

@@ -61,7 +61,9 @@ class DashboardTests(unittest.TestCase):
         self.assertEqual({t['name'] for t in snapshot['towns']}, {'alpha', 'bravo'})
         self.assertNotIn(Client(self.root / 'alpha').config['token'], json.dumps(snapshot))
         with urllib.request.urlopen(self.url) as response:
-            self.assertIn(b'Town observatory', response.read())
+            self.assertIn(b'Read what is happening', response.read())
+        with urllib.request.urlopen(self.url + '/operations') as response:
+            self.assertIn(b'Town operations', response.read())
 
     def test_csrf_and_rebinding_rejected(self):
         for headers in ({'Content-Type': 'application/json'},

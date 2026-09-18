@@ -97,3 +97,9 @@ ssh -N -L 8394:127.0.0.1:8394 your-user@your-town-host
 
 Run the dashboard on that host, keep the SSH tunnel open, and browse
 http://127.0.0.1:8394/ locally. Use another local forwarding port if 8394 is busy.
+
+## Shared workspace
+
+The root URL now opens the [shared message workspace](workspace.md). Full message
+text, payloads and linked replies are inspectable there. The existing controls
+described above remain available under **Operations** at `/operations`.

@@ -39,7 +39,8 @@ def published(config):
 
 def catalog(config):
     return [
-        {"id": i["id"], "name": i["name"], "bytes": s.st_size, "town": config["name"]}
+        {"id": i["id"], "name": i["name"], "bytes": s.st_size, "town": config["name"],
+         **{key: i[key] for key in ("description", "license") if i.get(key)}}
         for i, p, s in published(config)
     ]
 

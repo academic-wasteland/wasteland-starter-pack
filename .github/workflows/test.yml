@@ -33,3 +33,4 @@ jobs:
       - run: npm install --no-save --package-lock=false playwright@1.63.0
       - run: npx playwright install --with-deps chromium
       - run: node tests/browser/workspace.cjs
+      - run: node tests/browser/builder.cjs

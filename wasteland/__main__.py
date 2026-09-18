@@ -47,7 +47,7 @@ def main():
     onboard.add_argument(
         "--no-start", action="store_true", help="save setup without starting the worker"
     )
-    dashboard = sub.add_parser("dashboard", help="local town controls, mail and federation map",
+    dashboard = sub.add_parser("dashboard", aliases=["builder"], help="local town controls, mail and federation map",
                                description="Run your local town dashboard, then open http://127.0.0.1:8394/ in your browser. Keep this terminal open. Use the same --state directory as onboarding.")
     dashboard.add_argument("--port", type=int, default=8394, help="localhost HTTP port (default: 8394)")
     fair = sub.add_parser("fair-publish", help="validate and publish approved FAIR metadata")
@@ -111,7 +111,7 @@ def main():
             from .onboarding import run
 
             run(args.state, args.hub, args.invite_file, args.no_start)
-        elif args.command == "dashboard":
+        elif args.command in {"dashboard", "builder"}:
             from .dashboard import serve as serve_dashboard
 
             serve_dashboard(args.state, args.port)

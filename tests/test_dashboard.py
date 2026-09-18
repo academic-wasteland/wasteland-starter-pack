@@ -24,6 +24,7 @@ class DashboardTests(unittest.TestCase):
         self.root = Path(self.tmp.name)
         self.store = Store(self.root / 'hub.sqlite')
         invite = secrets.token_urlsafe(32)
+        self.invite = invite
         self.hub = ThreadingHTTPServer(('127.0.0.1', 0), hub_handler(self.store, invite, 'http://127.0.0.1'))
         self.ht = threading.Thread(target=self.hub.serve_forever, daemon=True)
         self.ht.start()

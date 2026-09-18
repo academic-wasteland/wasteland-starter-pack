@@ -19,17 +19,24 @@ from .residents import capabilities
 
 class Dashboard:
     def __init__(self, directory):
-        self.directory = Path(directory).resolve()
-        self.client = Client(directory)
+        self.directory = Path(directory).expanduser().resolve()
+        self.directory.mkdir(parents=True, exist_ok=True, mode=0o700)
+        self.client = None
+        self.conversations = None
         self.token = secrets.token_urlsafe(32)
         self.lock = threading.RLock()
-        from .conversations import RelayHub
-        self.conversations = RelayHub(directory)
+        if (self.directory / 'town.json').exists():
+            self.initialize()
         self.process = None
         self.log = None
         with self.db() as db:
             db.execute('CREATE TABLE IF NOT EXISTS outgoing (id TEXT PRIMARY KEY, message TEXT, result TEXT)')
         (self.directory / 'dashboard.sqlite').chmod(0o600)
+
+    def initialize(self):
+        from .conversations import RelayHub
+        self.client = Client(self.directory)
+        self.conversations = RelayHub(self.directory)
 
     @contextmanager
     def db(self):
@@ -142,6 +149,11 @@ class Dashboard:
 
     def action(self, action, body):
         with self.lock:
+            if action.startswith('builder/'):
+                from .builder import apply
+                return apply(self, action.split('/', 1)[1], body)
+            if self.client is None:
+                raise ValueError('Create your town in the builder first.')
             if action.startswith('conversations/'):
                 return self.conversations.action(action.split('/', 1)[1], body)
             if action == 'start':
@@ -222,7 +234,15 @@ def handler(state):
                 return
             path = urlsplit(self.path).path
             try:
-                if path == '/operations':
+                if path == '/builder' or (state.client is None and path in ('/', '/operations', '/conversations')):
+                    page = Path(__file__).with_name('builder.html').read_text().replace('__TOKEN__', state.token)
+                    self.reply(200, page.encode(), 'text/html; charset=utf-8')
+                elif path == '/api/builder/worker':
+                    self.reply(200, state.worker_status())
+                elif path == '/api/builder':
+                    from .builder import snapshot
+                    self.reply(200, snapshot(state))
+                elif path == '/operations':
                     page = Path(__file__).with_name('dashboard.html').read_text().replace('__TOKEN__', state.token)
                     self.reply(200, page.encode(), 'text/html; charset=utf-8')
                 elif path in ('/', '/conversations'):

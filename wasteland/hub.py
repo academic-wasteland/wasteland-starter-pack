@@ -179,6 +179,15 @@ class Store:
             )
             return {"id": message["id"], "status": "queued", "seq": cursor.lastrowid}
 
+    def activity(self):
+        """Public traffic metadata only; never parse or expose message bodies."""
+        with self.lock:
+            rows = self.db.execute('SELECT seq,sender,recipient,received,acked FROM messages ORDER BY seq DESC LIMIT 100').fetchall()
+        return {'ok': True, 'observed': now(), 'coverage': 'Latest 100 relay messages; no private contents or agent-internal work.',
+                'events': [{'sequence': row['seq'], 'from': row['sender'], 'to': row['recipient'],
+                            'received': row['received'], 'status': 'collected' if row['acked'] else 'queued'}
+                           for row in reversed(rows)]}
+
     def inbox(self, town):
         self.heartbeat(town)
         with self.lock:
@@ -262,6 +271,9 @@ def handler(store, invite, public_url):
                         raise ProtocolError("body must be JSON") from None
                     if not isinstance(data, dict):
                         raise ProtocolError("body must be an object")
+                if self.command == "GET" and path == "/v1/activity":
+                    self.respond(200, store.activity())
+                    return
                 token = self.headers.get("Authorization", "").removeprefix("Bearer ")
                 if self.command == "GET" and path in {
                     "/",

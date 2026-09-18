@@ -374,3 +374,13 @@ After `fair-publish catalogue.jsonld`, keep your town worker running and run
 `python3 -m wasteland --state .town fair-register` in another terminal. You receive
 a revision-bound receipt; discover registered services/resources at
 https://leechuck.de/wasteland-fair/. See [registration details](docs/fair-services.md#explicit-registration-with-fairhaven).
+
+## Browser town builder
+
+Run `python -m wasteland --state .town builder` and open
+**http://127.0.0.1:8394/builder**. New folders support browser registration;
+existing starter towns can edit their profile, agents, resources and trust.
+See the [builder guide](docs/town-builder.md).
+
+The package also includes a [public live observatory](docs/public-observatory.md)
+for heartbeat status, privacy-preserving relay traffic and FAIRhaven discovery.

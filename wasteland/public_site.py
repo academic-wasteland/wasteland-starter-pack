@@ -10,7 +10,8 @@ def pages():
     discovery = discovery.replace('<h1>FAIRhaven</h1>', '<h1>Services &amp; resources</h1>')
     discovery = discovery.replace('href="catalogue.jsonld"', 'href="/wasteland-fair/catalogue.jsonld"')
     return {'index.html': (source / 'observatory.html').read_text(), 'discovery.html': discovery,
-            'guide.html': (source / 'guide.html').read_text()}
+            'guide.html': (source / 'guide.html').read_text(),
+            'personal-agent.html': (source / 'personal-agent.html').read_text()}
 
 
 def write(output):
